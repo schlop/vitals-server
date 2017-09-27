@@ -4,6 +4,8 @@ import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.lept;
 import org.bytedeco.javacpp.tesseract;
 
+import java.nio.ByteBuffer;
+
 import static org.bytedeco.javacpp.lept.pixRead;
 import static org.bytedeco.javacpp.opencv_core.*;
 import static org.bytedeco.javacpp.opencv_imgcodecs.cvSaveImage;
@@ -21,9 +23,13 @@ public class VitalSignAnalyzer {
     private tesseract.TessBaseAPI ocr;
 
     public VitalSignAnalyzer(VitalSign vitalSign, int posx, int posy) {
+
         this.vitalSign = vitalSign;
         this.posx = posx;
         this.posy = posy;
+
+        this.vitalSign.setPosx(posx);
+        this.vitalSign.setPosy(posy);
 
         if (vitalSign.getVitalSignType() != Config.VITAL_SIGN_TYPE.ALARM_LEVEL) {
             this.ocr = new tesseract.TessBaseAPI();
@@ -41,6 +47,8 @@ public class VitalSignAnalyzer {
             IplImage adjustedImage = adjustImage(image);
             String path = Config.IMAGE_PATH + "/" + posx + posy + ".tif";
             cvSaveImage(path, adjustedImage);
+            cvReleaseImage(adjustedImage);
+
 
             BytePointer outText;
             lept.PIX input = pixRead(path);
@@ -51,23 +59,32 @@ public class VitalSignAnalyzer {
 
             vitalSign.setValue(output);
             return vitalSign;
-        } else {
-//            CvScalar s = cvGet2D(image, posy, posx);
-//            for (Config.ALARM_TYPE config : Config.ALARM_TYPE.values()) {
-//                int r = (int) (config.getRgb()[0] - s.val(0));
-//                int g = (int) (config.getRgb()[1] - s.val(1));
-//                int b = (int) (config.getRgb()[2] - s.val(2));
-//                if (r + g + b < 10) {
-//                    vitalSign.setValue(config.toString());
-//                    return vitalSign;
-//                }
-//            }
+        }
+        else {
+            ByteBuffer img = image.getByteBuffer();
+            int stepB =  posy * image.widthStep() + posx* image.nChannels() + 0;
+            int stepG =  posy * image.widthStep() + posx * image.nChannels() + 1;
+            int stepR =  posy * image.widthStep() + posx * image.nChannels() + 2;
+            int b = img.get(stepB) & 0xFF;
+            int g = img.get(stepG) & 0xFF;
+            int r = img.get(stepR) & 0xFF;
+            for (Config.ALARM_TYPE config : Config.ALARM_TYPE.values()) {
+                int difB = Math.abs(config.getRgb()[2] - b);
+                int difG = Math.abs(config.getRgb()[1] - g);
+                int difR = Math.abs(config.getRgb()[0] - r);
+                if (difB + difG + difR < 10) {
+                    vitalSign.setValue(config.toString());
+                    return vitalSign;
+                }
+            }
         }
         vitalSign.setValue("unknown");
         return vitalSign;
     }
 
+
     private IplImage adjustImage(IplImage image) {
+
         //crop
         CvRect cropBox = new CvRect();
         cropBox.x(posx);
@@ -89,6 +106,14 @@ public class VitalSignAnalyzer {
         //otsu
         cvThreshold(resizedImage, resizedImage, 0, 255, CV_THRESH_OTSU);
 
-        return resizedImage;
+        //clone
+        IplImage returnImage = resizedImage.clone();
+
+        //release
+        cvReleaseImage(croppedImage);
+        cvReleaseImage(coloredImage);
+        cvReleaseImage(resizedImage);
+
+        return returnImage;
     }
 }
