@@ -1,12 +1,14 @@
 package screencapture;
 
 import org.bytedeco.javacpp.Loader;
-import org.bytedeco.javacpp.opencv_core.*;
+import org.bytedeco.javacpp.opencv_core;
+import org.bytedeco.javacpp.opencv_core.CvScalar;
 import org.bytedeco.javacpp.opencv_core.IplImage;
 import org.bytedeco.javacpp.opencv_imgproc.CvFont;
 import org.bytedeco.javacpp.opencv_objdetect;
 import org.bytedeco.javacv.FrameGrabber;
 import org.bytedeco.javacv.OpenCVFrameConverter;
+import org.bytedeco.javacv.VideoInputFrameGrabber;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -20,9 +22,12 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static org.bytedeco.javacpp.opencv_core.cvReleaseImage;
+import static org.bytedeco.javacpp.opencv_core.cvSetImageROI;
 import static org.bytedeco.javacpp.opencv_imgcodecs.cvLoadImage;
 import static org.bytedeco.javacpp.opencv_imgcodecs.cvSaveImage;
-import static org.bytedeco.javacpp.opencv_imgproc.*;
+import static org.bytedeco.javacpp.opencv_imgproc.cvFont;
+import static org.bytedeco.javacpp.opencv_imgproc.cvPutText;
+import static org.bytedeco.javacpp.opencv_imgproc.cvResize;
 
 
 /**
@@ -36,7 +41,10 @@ public class ScreenAnalyzer {
     private boolean firstRun;
     private Timer timer;
 
-    private FrameGrabber grabber;
+    private IplImage grabbedImage;
+    private IplImage currentImage;
+
+    private VideoInputFrameGrabber grabber;
     private OpenCVFrameConverter.ToIplImage converter;
 
     private ArrayList<VitalSignAnalyzer> vitalSignAnalyzers;
@@ -48,7 +56,7 @@ public class ScreenAnalyzer {
     public ScreenAnalyzer() {
         //setup of class variables
         running = false;
-        debug = true;
+        debug = false;
         record = true;
         timer = new Timer();
         firstRun = true;
@@ -56,13 +64,31 @@ public class ScreenAnalyzer {
         font = cvFont(1.5, 2);
 
         Loader.load(opencv_objdetect.class);
-        try {
-            grabber = FrameGrabber.createDefault(0);
-        } catch (Exception e) {
-            System.out.println("Could not initialize ScreenGrabber for the selected device");
-            System.out.println(e.getMessage());
-        }
+
         converter = new OpenCVFrameConverter.ToIplImage();
+        if (!debug) {
+            try {
+                grabber = VideoInputFrameGrabber.createDefault(1);
+                grabber.setImageWidth(1920);
+                grabber.setImageHeight(1080);
+                grabber.start();
+                grabbedImage = converter.convert(grabber.grab());
+                opencv_core.CvRect cropBox = new opencv_core.CvRect();
+                cropBox.x(284);
+                cropBox.y(0);
+                cropBox.width(1350);
+                cropBox.height(1080);
+                cvSetImageROI(grabbedImage, cropBox);
+                currentImage = IplImage.create(1280, 1024, grabbedImage.depth(), grabbedImage.nChannels());
+                cvResize(grabbedImage, currentImage);
+            } catch (Exception e) {
+                System.out.println("Could not initialize ScreenGrabber for the selected device");
+                System.out.println(e.getMessage());
+            }
+        } else {
+            String debugFilePath = Config.DEBUG_PICTURE_PATH + "/vitalSignImage.bmp";
+            grabbedImage = cvLoadImage(debugFilePath);
+        }
 
         vitalSignAnalyzers = new ArrayList<VitalSignAnalyzer>();
 
@@ -108,12 +134,6 @@ public class ScreenAnalyzer {
 
     public void start() {
         running = true;
-        try {
-            grabber.start();
-        } catch (Exception e) {
-            System.out.println("Could not start screenGrabber");
-            System.out.println(e.getMessage());
-        }
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -140,16 +160,14 @@ public class ScreenAnalyzer {
     private void processScreenAnalysis() {
         ArrayList<VitalSign> previousVitalSigns = new ArrayList<VitalSign>(vitalSigns);
 
-        IplImage img = retrieveImage();
-        IplImage copy = img.clone();
-        analyzeScreen(img);
+        IplImage copy = currentImage.clone();
+        analyzeScreen(copy);
 
         if (record && !firstRun) {
-            recordScreen(copy, vitalSigns, previousVitalSigns);
+            recordScreen(currentImage, vitalSigns, previousVitalSigns);
         } else {
             firstRun = !firstRun;
         }
-        cvReleaseImage(img);
         cvReleaseImage(copy);
 
     }

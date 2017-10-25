@@ -58,6 +58,7 @@ public class VitalSignAnalyzer {
             output = output.replace("\n", "").replace("\r", "");
 
             vitalSign.setValue(output);
+            System.out.println(output);
             return vitalSign;
         }
         else {
