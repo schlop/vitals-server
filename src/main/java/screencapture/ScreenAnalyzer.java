@@ -1,12 +1,10 @@
 package screencapture;
 
 import org.bytedeco.javacpp.Loader;
-import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.CvScalar;
 import org.bytedeco.javacpp.opencv_core.IplImage;
 import org.bytedeco.javacpp.opencv_imgproc.CvFont;
 import org.bytedeco.javacpp.opencv_objdetect;
-import org.bytedeco.javacv.FrameGrabber;
 import org.bytedeco.javacv.OpenCVFrameConverter;
 import org.bytedeco.javacv.VideoInputFrameGrabber;
 import org.w3c.dom.Document;
@@ -18,31 +16,19 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import static org.bytedeco.javacpp.opencv_core.cvReleaseImage;
-import static org.bytedeco.javacpp.opencv_core.cvSetImageROI;
 import static org.bytedeco.javacpp.opencv_imgcodecs.cvLoadImage;
 import static org.bytedeco.javacpp.opencv_imgcodecs.cvSaveImage;
 import static org.bytedeco.javacpp.opencv_imgproc.cvFont;
 import static org.bytedeco.javacpp.opencv_imgproc.cvPutText;
-import static org.bytedeco.javacpp.opencv_imgproc.cvResize;
 
 
 /**
  * Created by Paul on 11/09/2017.
  */
-public class ScreenAnalyzer {
-
-    private boolean running;
-    private boolean debug;
-    private boolean record;
-    private boolean firstRun;
-    private Timer timer;
-
-    private IplImage grabbedImage;
-    private IplImage currentImage;
+public class ScreenAnalyzer implements Runnable{
+        private IplImage grabbedImage;
 
     private VideoInputFrameGrabber grabber;
     private OpenCVFrameConverter.ToIplImage converter;
@@ -50,37 +36,23 @@ public class ScreenAnalyzer {
     private ArrayList<VitalSignAnalyzer> vitalSignAnalyzers;
     private ArrayList<VitalSign> vitalSigns;
 
-    private CvFont font;
+    private ScreenAnalyzerInterface screenAnalyzerInterface;
 
-
-    public ScreenAnalyzer() {
+    public ScreenAnalyzer(ScreenAnalyzerInterface screenAnalyzerInterface) {
         //setup of class variables
-        running = false;
-        debug = false;
-        record = true;
-        timer = new Timer();
-        firstRun = true;
+        this.screenAnalyzerInterface = screenAnalyzerInterface;
         vitalSigns = new ArrayList<VitalSign>();
-        font = cvFont(1.5, 2);
-
         Loader.load(opencv_objdetect.class);
 
+        //initialize screen capture
         converter = new OpenCVFrameConverter.ToIplImage();
-        if (!debug) {
+        if (!Config.USE_SCREENSHOT_AS_INPUT) {
             try {
-                grabber = VideoInputFrameGrabber.createDefault(1);
-                grabber.setImageWidth(1920);
-                grabber.setImageHeight(1080);
+                grabber = VideoInputFrameGrabber.createDefault(Config.CAPTURE_DEVICE);
+                grabber.setImageWidth(Config.CAPTURE_WIDTH);
+                grabber.setImageHeight(Config.CAPTURE_HEIGHT);
                 grabber.start();
                 grabbedImage = converter.convert(grabber.grab());
-                opencv_core.CvRect cropBox = new opencv_core.CvRect();
-                cropBox.x(284);
-                cropBox.y(0);
-                cropBox.width(1350);
-                cropBox.height(1080);
-                cvSetImageROI(grabbedImage, cropBox);
-                currentImage = IplImage.create(1280, 1024, grabbedImage.depth(), grabbedImage.nChannels());
-                cvResize(grabbedImage, currentImage);
             } catch (Exception e) {
                 System.out.println("Could not initialize ScreenGrabber for the selected device");
                 System.out.println(e.getMessage());
@@ -90,10 +62,9 @@ public class ScreenAnalyzer {
             grabbedImage = cvLoadImage(debugFilePath);
         }
 
+
+        //read config xml and create vital sign analyzer for each field
         vitalSignAnalyzers = new ArrayList<VitalSignAnalyzer>();
-
-
-        //read config xml
         try {
             File xml = new File(Config.CONFIG_XML_PATH + "/config.xml");
             DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -132,71 +103,30 @@ public class ScreenAnalyzer {
         }
     }
 
-    public void start() {
-        running = true;
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                if (running) {
-                    processScreenAnalysis();
-                } else {
-                    timer.cancel();
-                }
-            }
-        }, 0, 1000);
-
-    }
-
-    public void stop() {
-        running = false;
-        try {
-            grabber.stop();
-        } catch (Exception e) {
-            System.out.println("Could not stop screenGrabber");
-            System.out.println(e.getMessage());
+    public void run() {
+        //check if previous vital signs are required
+        ArrayList<VitalSign> previousVitalSigns = null;
+        if (Config.SAVE_OCR_IMAGES && !vitalSigns.isEmpty()){
+            previousVitalSigns = new ArrayList<VitalSign>(vitalSigns);
         }
-    }
 
-    private void processScreenAnalysis() {
-        ArrayList<VitalSign> previousVitalSigns = new ArrayList<VitalSign>(vitalSigns);
-
-        IplImage copy = currentImage.clone();
-        analyzeScreen(copy);
-
-        if (record && !firstRun) {
-            recordScreen(currentImage, vitalSigns, previousVitalSigns);
-        } else {
-            firstRun = !firstRun;
+        IplImage copy = grabbedImage.clone();
+        vitalSigns = new ArrayList<VitalSign>();
+        for (VitalSignAnalyzer vsa : vitalSignAnalyzers) {
+            VitalSign vitalSign = vsa.processImage(copy);
+            vitalSigns.add(vitalSign);
         }
         cvReleaseImage(copy);
 
-    }
-
-    private IplImage retrieveImage() {
-        IplImage grabbedImage = null;
-        if (debug && grabbedImage == null) {
-            String debugFilePath = Config.DEBUG_PICTURE_PATH + "/vitalSignImage.bmp";
-            grabbedImage = cvLoadImage(debugFilePath);
-
-        } else if (!debug) {
-            try {
-                grabbedImage = converter.convert(grabber.grab());
-            } catch (FrameGrabber.Exception e) {
-                e.printStackTrace();
-            }
+        if (previousVitalSigns != null) {
+            recordScreen(grabbedImage, vitalSigns, previousVitalSigns);
         }
-        return grabbedImage;
-    }
 
-    private void analyzeScreen(IplImage grabbedImage) {
-        vitalSigns = new ArrayList<VitalSign>();
-        for (VitalSignAnalyzer vsa : vitalSignAnalyzers) {
-            VitalSign vitalSign = vsa.processImage(grabbedImage);
-            vitalSigns.add(vitalSign);
-        }
+        screenAnalyzerInterface.vitalSignUpdate(vitalSigns);
     }
 
     private void recordScreen(IplImage grabbedImage, List<VitalSign> vitalSigns, List<VitalSign> previousVitalSigns) {
+        CvFont font = cvFont(1.5, 2);
         int counter = 0;
         for (int i = 0; i < vitalSigns.size(); i++) {
             VitalSign vs = vitalSigns.get(i);
@@ -212,5 +142,9 @@ public class ScreenAnalyzer {
         cvPutText(grabbedImage, String.valueOf(counter), pos , font, CvScalar.WHITE);
         String path = Config.VALIDATION_PATH + "/" + System.currentTimeMillis() + ".jpg";
         cvSaveImage(path, grabbedImage);
+    }
+
+    public interface ScreenAnalyzerInterface{
+        public void vitalSignUpdate(ArrayList<VitalSign> vitalSigns);
     }
 }

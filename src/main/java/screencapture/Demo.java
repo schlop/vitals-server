@@ -44,9 +44,8 @@ public class Demo {
 //        grabber.start();
 
         VideoInputFrameGrabber grabber = VideoInputFrameGrabber.createDefault(1);
-        grabber.setImageWidth(800);
-        grabber.setImageHeight(600);
-        //grabber.setPixelFormat(AV_PIX_FMT_YUV422P10);
+        grabber.setImageWidth(1280);
+        grabber.setImageHeight(1024);
         grabber.start();
 
 
