@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<hospital>
+	<op>
+		<vitalsign category="HF">
+			<postionx>434</postionx>
+			<postiony>67</postiony>
+		</vitalsign>
+		<vitalsign category="SPO2">
+			<postionx>592</postionx>
+			<postiony>67</postiony>
+		</vitalsign>
+		<vitalsign category="STII">
+			<postionx>592</postionx>
+			<postiony>90</postiony>
+		</vitalsign>
+		<vitalsign category="BP">
+			<postionx>418</postionx>
+			<postiony>115</postiony>
+		</vitalsign>
+		<vitalsign category="BP_MEASURE">
+			<postionx>366</postionx>
+			<postiony>115</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM">
+			<postionx>149</postionx>
+			<postiony>45</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM_LEVEL">
+			<postionx>332</postionx>
+			<postiony>45</postiony>
+		</vitalsign>
+	</op>
+	<op>
+		<vitalsign category="HF">
+			<postionx>434</postionx>
+			<postiony>189</postiony>
+		</vitalsign>
+		<vitalsign category="SPO2">
+			<postionx>592</postionx>
+			<postiony>189</postiony>
+		</vitalsign>
+		<vitalsign category="STII">
+			<postionx>592</postionx>
+			<postiony>213</postiony>
+		</vitalsign>
+		<vitalsign category="BP">
+			<postionx>418</postionx>
+			<postiony>236</postiony>
+		</vitalsign>
+		<vitalsign category="BP_MEASURE">
+			<postionx>366</postionx>
+			<postiony>236</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM">
+			<postionx>149</postionx>
+			<postiony>167</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM_LEVEL">
+			<postionx>332</postionx>
+			<postiony>167</postiony>
+		</vitalsign>
+	</op>
+</hospital>

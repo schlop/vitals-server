@@ -58,7 +58,12 @@ public class VitalSignAnalyzer {
             output = output.replace("\n", "").replace("\r", "");
 
             vitalSign.setValue(output);
-            System.out.println(output);
+
+            if (Config.WRITE_RESULTS){
+                String out = "OP: " + vitalSign.getOp() + "; VS: " + vitalSign.getVitalSignType().toString() + "; VALUE: " + vitalSign.getValue();
+                System.out.println(out);
+            }
+
             return vitalSign;
         }
         else {
