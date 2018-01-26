@@ -6,6 +6,7 @@ import org.bytedeco.javacpp.tesseract;
 
 import java.nio.ByteBuffer;
 
+import static org.bytedeco.javacpp.lept.pixDestroy;
 import static org.bytedeco.javacpp.lept.pixRead;
 import static org.bytedeco.javacpp.opencv_core.*;
 import static org.bytedeco.javacpp.opencv_imgcodecs.cvSaveImage;
@@ -45,7 +46,7 @@ public class VitalSignAnalyzer {
     public VitalSign processImage(IplImage image) {
         if (vitalSign.getVitalSignType() != Config.VITAL_SIGN_TYPE.ALARM_LEVEL) {
             IplImage adjustedImage = adjustImage(image);
-            String path = Config.IMAGE_PATH + "/" + posx + posy + ".tif";
+            String path = Config.IMAGE_PATH + "/" + posx + posy + ".png";
             cvSaveImage(path, adjustedImage);
             cvReleaseImage(adjustedImage);
 
@@ -58,12 +59,13 @@ public class VitalSignAnalyzer {
             output = output.replace("\n", "").replace("\r", "");
 
             vitalSign.setValue(output);
+            outText.close();
+            pixDestroy(input);
 
             if (Config.WRITE_RESULTS){
                 String out = "OP: " + vitalSign.getOp() + "; VS: " + vitalSign.getVitalSignType().toString() + "; VALUE: " + vitalSign.getValue();
                 System.out.println(out);
             }
-
             return vitalSign;
         }
         else {
@@ -85,6 +87,7 @@ public class VitalSignAnalyzer {
             }
         }
         vitalSign.setValue("unknown");
+        cvReleaseImage(image);
         return vitalSign;
     }
 
@@ -119,6 +122,7 @@ public class VitalSignAnalyzer {
         cvReleaseImage(croppedImage);
         cvReleaseImage(coloredImage);
         cvReleaseImage(resizedImage);
+        cvReleaseImage(image);
 
         return returnImage;
     }

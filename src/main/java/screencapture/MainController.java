@@ -17,29 +17,10 @@ public class MainController {
     private Logger log;
 
     public static void main(String[] args) {
-        if (args.length != 0){
-            Config.ENABLE_HTTP_SERVER = true;
-            Config.USE_SCREENSHOT_AS_INPUT = true;
-            Config.SAVE_OCR_IMAGES = false;
-        }
-        for (String s : args) {
-            if (s.equals("-serverEnabled")) {
-                Config.ENABLE_HTTP_SERVER = true;
-            } else if (s.equals("-testDataEnabled")) {
-                Config.USE_SCREENSHOT_AS_INPUT = true;
-            } else if (s.equals("-validationEnabled")) {
-                Config.SAVE_OCR_IMAGES = true;
-            } else if (s.equals("-writeResults")) {
-            Config.WRITE_RESULTS = true;
-        }
-
-        }
-
         MainController mc = new MainController();
         if (Config.ENABLE_HTTP_SERVER) {
             mc.start();
-        }
-        else {
+        } else {
             mc.startWithoutServer();
         }
     }
@@ -49,12 +30,6 @@ public class MainController {
         hc = new HttpServerController(this);
         log = new Logger();
         scheduler = Executors.newSingleThreadScheduledExecutor();
-
-        //This is really dirty
-//        JFrame frame = new JFrame("Vital Sign Reader");
-//        frame.setContentPane(new StartGUI(this).mainPannel);
-//        frame.pack();
-//        frame.setVisible(true);
     }
 
     public void start() {

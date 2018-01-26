@@ -32,7 +32,7 @@ public class ScreenCaptureController implements Runnable{
     private ArrayList<VitalSignAnalyzer> vitalSignAnalyzers;
     private ArrayList<VitalSign> vitalSigns;
 
-    private MainController screenAnalyzerInterface;
+    private MainController mainController;
 
     private void setupScreenCapture() throws Exception{
         grabber = VideoInputFrameGrabber.createDefault(Config.CAPTURE_DEVICE);
@@ -44,7 +44,7 @@ public class ScreenCaptureController implements Runnable{
 
     public ScreenCaptureController(MainController mainController) {
         //setup of class variables
-        this.screenAnalyzerInterface = mainController;
+        this.mainController = mainController;
         vitalSigns = new ArrayList<VitalSign>();
         Loader.load(opencv_objdetect.class);
 
@@ -120,20 +120,20 @@ public class ScreenCaptureController implements Runnable{
             previousVitalSigns = new ArrayList<VitalSign>(vitalSigns);
         }
 
-        IplImage copy = grabbedImage.clone();
         vitalSigns = new ArrayList<VitalSign>();
         for (VitalSignAnalyzer vsa : vitalSignAnalyzers) {
+            IplImage copy = grabbedImage.clone();
             VitalSign vitalSign = vsa.processImage(copy);
             vitalSigns.add(vitalSign);
+            cvReleaseImage(copy);
         }
 
         if (previousVitalSigns != null) {
             recordScreen(grabbedImage, vitalSigns, previousVitalSigns);
         }
-        screenAnalyzerInterface.vitalSignUpdate(vitalSigns);
+        mainController.vitalSignUpdate(vitalSigns);
 
         System.out.println("[SCREEN CAPTURE] Analyzed vital signs");
-        cvReleaseImage(copy);
     }
 
     private void recordScreen(IplImage grabbedImage, List<VitalSign> vitalSigns, List<VitalSign> previousVitalSigns) {
