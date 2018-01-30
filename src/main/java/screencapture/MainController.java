@@ -67,10 +67,6 @@ public class MainController {
             }
         }
     }
-
-    public void httpServerUpdate(String put) {
-
-    }
 }
 
 

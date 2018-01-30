@@ -2,62 +2,206 @@
 <hospital>
 	<op>
 		<vitalsign category="HF">
-			<postionx>434</postionx>
-			<postiony>67</postiony>
+			<postionx>761</postionx>
+			<postiony>75</postiony>
 		</vitalsign>
 		<vitalsign category="SPO2">
-			<postionx>592</postionx>
-			<postiony>67</postiony>
+			<postionx>761</postionx>
+			<postiony>127</postiony>
 		</vitalsign>
-		<vitalsign category="STII">
-			<postionx>592</postionx>
-			<postiony>90</postiony>
+		<vitalsign category="PULS">
+			<postionx>881</postionx>
+			<postiony>75</postiony>
 		</vitalsign>
 		<vitalsign category="BP">
-			<postionx>418</postionx>
-			<postiony>115</postiony>
+			<postionx>853</postionx>
+			<postiony>142</postiony>
 		</vitalsign>
 		<vitalsign category="BP_MEASURE">
-			<postionx>366</postionx>
-			<postiony>115</postiony>
+			<postionx>836</postionx>
+			<postiony>117</postiony>
 		</vitalsign>
 		<vitalsign category="ALARM">
-			<postionx>149</postionx>
-			<postiony>45</postiony>
+			<postionx>546</postionx>
+			<postiony>42</postiony>
 		</vitalsign>
 		<vitalsign category="ALARM_LEVEL">
-			<postionx>332</postionx>
-			<postiony>45</postiony>
+			<postionx>546</postionx>
+			<postiony>42</postiony>
 		</vitalsign>
+        <vitalsign category="CHART">
+            <postionx>418</postionx>
+            <postiony>67</postiony>
+        </vitalsign>
 	</op>
 	<op>
 		<vitalsign category="HF">
-			<postionx>434</postionx>
-			<postiony>189</postiony>
+			<postionx>1717</postionx>
+			<postiony>75</postiony>
 		</vitalsign>
 		<vitalsign category="SPO2">
-			<postionx>592</postionx>
-			<postiony>189</postiony>
+			<postionx>1722</postionx>
+			<postiony>127</postiony>
 		</vitalsign>
-		<vitalsign category="STII">
-			<postionx>592</postionx>
-			<postiony>213</postiony>
+		<vitalsign category="PULS">
+			<postionx>1841</postionx>
+			<postiony>75</postiony>
 		</vitalsign>
 		<vitalsign category="BP">
-			<postionx>418</postionx>
-			<postiony>236</postiony>
+			<postionx>1812</postionx>
+			<postiony>143</postiony>
 		</vitalsign>
 		<vitalsign category="BP_MEASURE">
-			<postionx>366</postionx>
-			<postiony>236</postiony>
+			<postionx>1796</postionx>
+			<postiony>117</postiony>
 		</vitalsign>
 		<vitalsign category="ALARM">
-			<postionx>149</postionx>
-			<postiony>167</postiony>
+			<postionx>1503</postionx>
+			<postiony>42</postiony>
 		</vitalsign>
 		<vitalsign category="ALARM_LEVEL">
-			<postionx>332</postionx>
-			<postiony>167</postiony>
+			<postionx>1503</postionx>
+			<postiony>42</postiony>
 		</vitalsign>
+        <vitalsign category="CHART">
+            <postionx>1378</postionx>
+            <postiony>67</postiony>
+        </vitalsign>
+	</op>
+	<op>
+		<vitalsign category="HF">
+			<postionx>761</postionx>
+			<postiony>206</postiony>
+		</vitalsign>
+		<vitalsign category="SPO2">
+			<postionx>761</postionx>
+			<postiony>258</postiony>
+		</vitalsign>
+		<vitalsign category="PULS">
+			<postionx>881</postionx>
+			<postiony>206</postiony>
+		</vitalsign>
+		<vitalsign category="BP">
+			<postionx>853</postionx>
+			<postiony>274</postiony>
+		</vitalsign>
+		<vitalsign category="BP_MEASURE">
+			<postionx>836</postionx>
+			<postiony>248</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM">
+			<postionx>546</postionx>
+			<postiony>173</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM_LEVEL">
+			<postionx>546</postionx>
+			<postiony>173</postiony>
+		</vitalsign>
+        <vitalsign category="CHART">
+            <postionx>418</postionx>
+            <postiony>197</postiony>
+        </vitalsign>
+	</op>
+	<op>
+		<vitalsign category="HF">
+			<postionx>1717</postionx>
+			<postiony>206</postiony>
+		</vitalsign>
+		<vitalsign category="SPO2">
+			<postionx>1722</postionx>
+			<postiony>258</postiony>
+		</vitalsign>
+		<vitalsign category="PULS">
+			<postionx>1841</postionx>
+			<postiony>206</postiony>
+		</vitalsign>
+		<vitalsign category="BP">
+			<postionx>1812</postionx>
+			<postiony>274</postiony>
+		</vitalsign>
+		<vitalsign category="BP_MEASURE">
+			<postionx>1796</postionx>
+			<postiony>248</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM">
+			<postionx>1503</postionx>
+			<postiony>173</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM_LEVEL">
+			<postionx>1503</postionx>
+			<postiony>173</postiony>
+		</vitalsign>
+        <vitalsign category="CHART">
+            <postionx>1378</postionx>
+            <postiony>197</postiony>
+        </vitalsign>
+	</op>
+	<op>
+		<vitalsign category="HF">
+			<postionx>761</postionx>
+			<postiony>859</postiony>
+		</vitalsign>
+		<vitalsign category="SPO2">
+			<postionx>761</postionx>
+			<postiony>909</postiony>
+		</vitalsign>
+		<vitalsign category="PULS">
+			<postionx>839</postionx>
+			<postiony>859</postiony>
+		</vitalsign>
+		<vitalsign category="BP">
+			<postionx>853</postionx>
+			<postiony>926</postiony>
+		</vitalsign>
+		<vitalsign category="BP_MEASURE">
+			<postionx>836</postionx>
+			<postiony>901</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM">
+			<postionx>546</postionx>
+			<postiony>827</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM_LEVEL">
+			<postionx>546</postionx>
+			<postiony>827</postiony>
+		</vitalsign>
+        <vitalsign category="CHART">
+            <postionx>418</postionx>
+            <postiony>850</postiony>
+        </vitalsign>
+	</op>
+	<op>
+		<vitalsign category="HF">
+			<postionx>1717</postionx>
+			<postiony>859</postiony>
+		</vitalsign>
+		<vitalsign category="SPO2">
+			<postionx>1722</postionx>
+			<postiony>909</postiony>
+		</vitalsign>
+		<vitalsign category="PULS">
+			<postionx>1841</postionx>
+			<postiony>859</postiony>
+		</vitalsign>
+		<vitalsign category="BP">
+			<postionx>1812</postionx>
+			<postiony>926</postiony>
+		</vitalsign>
+		<vitalsign category="BP_MEASURE">
+			<postionx>1796</postionx>
+			<postiony>901</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM">
+			<postionx>1503</postionx>
+			<postiony>827</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM_LEVEL">
+			<postionx>1503</postionx>
+			<postiony>827</postiony>
+		</vitalsign>
+        <vitalsign category="CHART">
+            <postionx>1378</postionx>
+            <postiony>850</postiony>
+        </vitalsign>
 	</op>
 </hospital>

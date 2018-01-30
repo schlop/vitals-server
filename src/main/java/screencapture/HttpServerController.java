@@ -87,7 +87,5 @@ public class HttpServerController{
             os.write(jsonBytes);
             os.close();
         }
-
-
     }
 }

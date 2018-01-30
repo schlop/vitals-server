@@ -29,8 +29,8 @@ public class VitalSignAnalyzer {
         this.posx = posx;
         this.posy = posy;
 
-        this.vitalSign.setPosx(posx);
-        this.vitalSign.setPosy(posy);
+        vitalSign.setPosx(posx);
+        vitalSign.setPosy(posy);
 
         if (vitalSign.getVitalSignType() != Config.VITAL_SIGN_TYPE.ALARM_LEVEL) {
             this.ocr = new tesseract.TessBaseAPI();
@@ -43,10 +43,10 @@ public class VitalSignAnalyzer {
         }
     }
 
-    public VitalSign processImage(IplImage image) {
+        public VitalSign processImage(IplImage image) {
         if (vitalSign.getVitalSignType() != Config.VITAL_SIGN_TYPE.ALARM_LEVEL) {
             IplImage adjustedImage = adjustImage(image);
-            String path = Config.IMAGE_PATH + "/" + posx + posy + ".png";
+            String path = Config.IMAGE_PATH + "/" + vitalSign.getOp() + vitalSign.getVitalSignType() + ".png";
             cvSaveImage(path, adjustedImage);
             cvReleaseImage(adjustedImage);
 
@@ -93,7 +93,6 @@ public class VitalSignAnalyzer {
 
 
     private IplImage adjustImage(IplImage image) {
-
         //crop
         CvRect cropBox = new CvRect();
         cropBox.x(posx);
