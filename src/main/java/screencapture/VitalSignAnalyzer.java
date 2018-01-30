@@ -43,14 +43,11 @@ public class VitalSignAnalyzer {
         }
     }
 
-        public VitalSign processImage(IplImage image) {
+    public VitalSign processImage(IplImage image) {
         if (vitalSign.getVitalSignType() != Config.VITAL_SIGN_TYPE.ALARM_LEVEL) {
             IplImage adjustedImage = adjustImage(image);
             String path = Config.IMAGE_PATH + "/" + vitalSign.getOp() + vitalSign.getVitalSignType() + ".png";
             cvSaveImage(path, adjustedImage);
-            cvReleaseImage(adjustedImage);
-
-
             BytePointer outText;
             lept.PIX input = pixRead(path);
             ocr.SetImage(input);
@@ -62,17 +59,17 @@ public class VitalSignAnalyzer {
             outText.close();
             pixDestroy(input);
 
-            if (Config.WRITE_RESULTS){
+            if (Config.WRITE_RESULTS) {
                 String out = "OP: " + vitalSign.getOp() + "; VS: " + vitalSign.getVitalSignType().toString() + "; VALUE: " + vitalSign.getValue();
                 System.out.println(out);
             }
+            cvReleaseImage(image);
             return vitalSign;
-        }
-        else {
+        } else {
             ByteBuffer img = image.getByteBuffer();
-            int stepB =  posy * image.widthStep() + posx* image.nChannels() + 0;
-            int stepG =  posy * image.widthStep() + posx * image.nChannels() + 1;
-            int stepR =  posy * image.widthStep() + posx * image.nChannels() + 2;
+            int stepB = posy * image.widthStep() + posx * image.nChannels() + 0;
+            int stepG = posy * image.widthStep() + posx * image.nChannels() + 1;
+            int stepR = posy * image.widthStep() + posx * image.nChannels() + 2;
             int b = img.get(stepB) & 0xFF;
             int g = img.get(stepG) & 0xFF;
             int r = img.get(stepR) & 0xFF;
@@ -80,13 +77,22 @@ public class VitalSignAnalyzer {
                 int difB = Math.abs(config.getRgb()[2] - b);
                 int difG = Math.abs(config.getRgb()[1] - g);
                 int difR = Math.abs(config.getRgb()[0] - r);
-                if (difB + difG + difR < 10) {
+                if (difB + difG + difR < 20) {
                     vitalSign.setValue(config.toString());
+                    if (Config.WRITE_RESULTS) {
+                        String out = "OP: " + vitalSign.getOp() + "; VS: " + vitalSign.getVitalSignType().toString() + "; VALUE: " + vitalSign.getValue();
+                        System.out.println(out);
+                    }
+                    cvReleaseImage(image);
                     return vitalSign;
                 }
             }
         }
         vitalSign.setValue("unknown");
+        if (Config.WRITE_RESULTS) {
+            String out = "OP: " + vitalSign.getOp() + "; VS: " + vitalSign.getVitalSignType().toString() + "; VALUE: " + vitalSign.getValue();
+            System.out.println(out);
+        }
         cvReleaseImage(image);
         return vitalSign;
     }

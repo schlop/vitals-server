@@ -86,6 +86,7 @@ public class ScreenCaptureController implements Runnable {
             NodeList ops = doc.getElementsByTagName("op");
             for (int i = 0; i < ops.getLength(); i++) {
                 Node op = ops.item(i);
+                int opLabel = Integer.parseInt(op.getAttributes().item(0).getNodeValue());
                 NodeList vitalSigns = op.getChildNodes();
                 for (int j = 0; j < vitalSigns.getLength(); j++) {
                     Node vitalSign = vitalSigns.item(j);
@@ -104,11 +105,11 @@ public class ScreenCaptureController implements Runnable {
                             }
                         }
                         if (vitalSignEnum != Config.VITAL_SIGN_TYPE.CHART) {
-                            VitalSign vs = new VitalSign(vitalSignEnum, i);
+                            VitalSign vs = new VitalSign(vitalSignEnum, opLabel);
                             VitalSignAnalyzer vsa = new VitalSignAnalyzer(vs, posXInt, posYInt);
                             vitalSignAnalyzers.add(vsa);
                         } else {
-                            ChartAnalyzer ca = new ChartAnalyzer(posXInt, posYInt, i);
+                            ChartAnalyzer ca = new ChartAnalyzer(posXInt, posYInt,opLabel);
                             chartAnalyzers.add(ca);
                         }
                     }

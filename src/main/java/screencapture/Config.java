@@ -13,9 +13,9 @@ public class Config {
     public static final String DEBUG_PICTURE_PATH = "debug";
     public static final String CSV_OUTPUT_PATH = "output";
 
-    public static boolean SAVE_OCR_IMAGES = true;
-    public static boolean USE_SCREENSHOT_AS_INPUT = false;
-    public static boolean ENABLE_HTTP_SERVER = false;
+    public static boolean SAVE_OCR_IMAGES = false;
+    public static boolean USE_SCREENSHOT_AS_INPUT = true;
+    public static boolean ENABLE_HTTP_SERVER = true;
     public static boolean WRITE_RESULTS = false;
 
     public static final int CAPTURE_DEVICE = 0;
@@ -53,7 +53,7 @@ public class Config {
         private int puls = 55;
         private int bpx = 80;
         private int bp_measurex = 43;
-        private int alarmx = 183;
+        private int alarmx = 180;
         private int chartx = 290;
 
         private int hfy = 30;

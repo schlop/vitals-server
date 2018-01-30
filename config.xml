@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <hospital>
-	<op>
+	<op number = "0">
 		<vitalsign category="HF">
 			<postionx>761</postionx>
 			<postiony>75</postiony>
@@ -34,7 +34,7 @@
             <postiony>67</postiony>
         </vitalsign>
 	</op>
-	<op>
+	<op number="1">
 		<vitalsign category="HF">
 			<postionx>1717</postionx>
 			<postiony>75</postiony>
@@ -56,11 +56,11 @@
 			<postiony>117</postiony>
 		</vitalsign>
 		<vitalsign category="ALARM">
-			<postionx>1503</postionx>
+			<postionx>1504</postionx>
 			<postiony>42</postiony>
 		</vitalsign>
 		<vitalsign category="ALARM_LEVEL">
-			<postionx>1503</postionx>
+			<postionx>1504</postionx>
 			<postiony>42</postiony>
 		</vitalsign>
         <vitalsign category="CHART">
@@ -68,7 +68,7 @@
             <postiony>67</postiony>
         </vitalsign>
 	</op>
-	<op>
+	<op number="2">
 		<vitalsign category="HF">
 			<postionx>761</postionx>
 			<postiony>206</postiony>
@@ -102,7 +102,7 @@
             <postiony>197</postiony>
         </vitalsign>
 	</op>
-	<op>
+	<op number="3">
 		<vitalsign category="HF">
 			<postionx>1717</postionx>
 			<postiony>206</postiony>
@@ -124,11 +124,11 @@
 			<postiony>248</postiony>
 		</vitalsign>
 		<vitalsign category="ALARM">
-			<postionx>1503</postionx>
+			<postionx>1504</postionx>
 			<postiony>173</postiony>
 		</vitalsign>
 		<vitalsign category="ALARM_LEVEL">
-			<postionx>1503</postionx>
+			<postionx>1504</postionx>
 			<postiony>173</postiony>
 		</vitalsign>
         <vitalsign category="CHART">
@@ -136,7 +136,7 @@
             <postiony>197</postiony>
         </vitalsign>
 	</op>
-	<op>
+	<op number="4">
 		<vitalsign category="HF">
 			<postionx>761</postionx>
 			<postiony>859</postiony>
@@ -170,7 +170,7 @@
             <postiony>850</postiony>
         </vitalsign>
 	</op>
-	<op>
+	<op number="5">
 		<vitalsign category="HF">
 			<postionx>1717</postionx>
 			<postiony>859</postiony>
@@ -192,11 +192,11 @@
 			<postiony>901</postiony>
 		</vitalsign>
 		<vitalsign category="ALARM">
-			<postionx>1503</postionx>
+			<postionx>1504</postionx>
 			<postiony>827</postiony>
 		</vitalsign>
 		<vitalsign category="ALARM_LEVEL">
-			<postionx>1503</postionx>
+			<postionx>1504</postionx>
 			<postiony>827</postiony>
 		</vitalsign>
         <vitalsign category="CHART">
