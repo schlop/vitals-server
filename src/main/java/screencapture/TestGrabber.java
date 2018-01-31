@@ -9,7 +9,7 @@ import org.bytedeco.javacv.OpenCVFrameConverter;
 
 import static org.bytedeco.javacpp.opencv_core.*;
 
-public class Demo {
+public class TestGrabber {
     public static void main(String[] args) throws Exception {
 
 

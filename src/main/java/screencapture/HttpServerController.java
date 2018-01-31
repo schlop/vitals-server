@@ -2,10 +2,7 @@ package screencapture;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.net.httpserver.Headers;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.*;
 
 import java.io.*;
 import java.net.InetSocketAddress;
