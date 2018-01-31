@@ -1,0 +1,20 @@
+extractedImagePath = extracted
+extractedChartPath = charts
+extractedValidationPath = validation
+csvOutputPath = output
+sampleImagePath = debug/vitalSignImage1.png
+httpsCertPath = mycert.keystore
+
+validationEnabled = false
+debugEnabled = true
+httpsEnabled = true
+consoleOutputEnabled = false
+
+captureDeviceNumber = 0
+captureInterval = 2000
+captureImageWidth = 1920
+captureImageHeight = 1080
+
+port = 9555
+
+

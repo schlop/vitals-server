@@ -23,7 +23,7 @@ public class Logger {
         SimpleDateFormat date = new SimpleDateFormat(pattern);
         String dateString = date.format(cal.getTime());
         String alarmsFilename = dateString + "_alarms.csv";
-        File csvPathAlarms = new File(Config.CSV_OUTPUT_PATH + "/" + alarmsFilename);
+        File csvPathAlarms = new File(Config.getInstance().getProp("csvOutputPath") + "/" + alarmsFilename);
 
         try {
             alarmsFileWriter = new FileWriter(csvPathAlarms);

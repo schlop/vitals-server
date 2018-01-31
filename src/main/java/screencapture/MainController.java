@@ -18,7 +18,7 @@ public class MainController {
 
     public static void main(String[] args) {
         MainController mc = new MainController();
-        if (Config.ENABLE_HTTP_SERVER) {
+        if (Config.getInstance().getProp("httpsEnabled").equals("true")) {
             mc.start();
         } else {
             mc.startWithoutServer();
@@ -33,12 +33,12 @@ public class MainController {
     }
 
     public void start() {
-        scheduler.scheduleAtFixedRate(sc, 0, Config.CAPTURE_INTERVAL, TimeUnit.MILLISECONDS);
+        scheduler.scheduleAtFixedRate(sc, 0, Integer.parseInt(Config.getInstance().getProp("captureInterval")), TimeUnit.MILLISECONDS);
         hc.start();
     }
 
     public void startWithoutServer() {
-        scheduler.scheduleAtFixedRate(sc, 0, Config.CAPTURE_INTERVAL, TimeUnit.MILLISECONDS);
+        scheduler.scheduleAtFixedRate(sc, 0, Integer.parseInt(Config.getInstance().getProp("captureInterval")), TimeUnit.MILLISECONDS);
     }
 
     public void stop() {
@@ -55,11 +55,11 @@ public class MainController {
         }
         //hand over alarms to log
         for (VitalSign vs : vitalSigns) {
-            if (vs.getVitalSignType() == Config.VITAL_SIGN_TYPE.ALARM_LEVEL) {
+            if (vs.getVitalSignType() == Enums.VITAL_SIGN_TYPE.ALARM_LEVEL) {
                 int op = vs.getOp();
                 String alarmLevel = vs.getValue();
                 for (VitalSign alarmvs : vitalSigns) {
-                    if (alarmvs.getVitalSignType() == Config.VITAL_SIGN_TYPE.ALARM && alarmvs.getOp() == op) {
+                    if (alarmvs.getVitalSignType() == Enums.VITAL_SIGN_TYPE.ALARM && alarmvs.getOp() == op) {
                         String alarmMessage = alarmvs.getValue();
                         log.logNewAlarm(op, alarmLevel, alarmMessage);
                     }

@@ -5,19 +5,19 @@ package screencapture;
  */
 public class VitalSign {
 
-    private Config.VITAL_SIGN_TYPE vitalSignType;
+    private Enums.VITAL_SIGN_TYPE vitalSignType;
     private int op;
     private String value;
 
     private int posx;
     private int posy;
 
-    public VitalSign(Config.VITAL_SIGN_TYPE vitalSignType, int op) {
+    public VitalSign(Enums.VITAL_SIGN_TYPE vitalSignType, int op) {
         this.vitalSignType = vitalSignType;
         this.op = op;
     }
 
-    public Config.VITAL_SIGN_TYPE getVitalSignType() {
+    public Enums.VITAL_SIGN_TYPE getVitalSignType() {
         return vitalSignType;
     }
 

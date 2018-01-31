@@ -1,10 +1,13 @@
-package screencapture;
+package screencapture.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import screencapture.Config;
+import screencapture.Enums;
+import screencapture.HttpServerController;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -23,7 +26,7 @@ public class TestServer {
 
     public TestServer(String jsonString) {
         try {
-            server = HttpServer.create(new InetSocketAddress(Config.HTTP_SERVER_PORT), 0);
+            server = HttpServer.create(new InetSocketAddress(Integer.parseInt(Config.getInstance().getProp("port"))), 0);
         } catch (IOException e) {
             e.printStackTrace();
         }

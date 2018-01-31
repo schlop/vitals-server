@@ -32,21 +32,21 @@ public class VitalSignAnalyzer {
         vitalSign.setPosx(posx);
         vitalSign.setPosy(posy);
 
-        if (vitalSign.getVitalSignType() != Config.VITAL_SIGN_TYPE.ALARM_LEVEL) {
+        if (vitalSign.getVitalSignType() != Enums.VITAL_SIGN_TYPE.ALARM_LEVEL) {
             this.ocr = new tesseract.TessBaseAPI();
-            if (this.ocr.Init(Config.TESSERACT_PATH, "eng") != 0) {
+            if (this.ocr.Init("", "eng") != 0) {
                 System.err.println("Could not initialize tesseract.");
                 System.exit(1);
             }
-            if (vitalSign.getVitalSignType() != Config.VITAL_SIGN_TYPE.ALARM)
+            if (vitalSign.getVitalSignType() != Enums.VITAL_SIGN_TYPE.ALARM)
                 this.ocr.SetVariable("tessedit_char_whitelist", vitalSign.getVitalSignType().getPossibleChars());
         }
     }
 
     public VitalSign processImage(IplImage image) {
-        if (vitalSign.getVitalSignType() != Config.VITAL_SIGN_TYPE.ALARM_LEVEL) {
+        if (vitalSign.getVitalSignType() != Enums.VITAL_SIGN_TYPE.ALARM_LEVEL) {
             IplImage adjustedImage = adjustImage(image);
-            String path = Config.IMAGE_PATH + "/" + vitalSign.getOp() + vitalSign.getVitalSignType() + ".png";
+            String path = Config.getInstance().getProp("extractedImagePath") + "/" + vitalSign.getOp() + vitalSign.getVitalSignType() + ".png";
             cvSaveImage(path, adjustedImage);
             BytePointer outText;
             lept.PIX input = pixRead(path);
@@ -59,7 +59,7 @@ public class VitalSignAnalyzer {
             outText.close();
             pixDestroy(input);
 
-            if (Config.WRITE_RESULTS) {
+            if (Config.getInstance().getProp("consoleOutputEnabled").equals("true")) {
                 String out = "OP: " + vitalSign.getOp() + "; VS: " + vitalSign.getVitalSignType().toString() + "; VALUE: " + vitalSign.getValue();
                 System.out.println(out);
             }
@@ -73,13 +73,13 @@ public class VitalSignAnalyzer {
             int b = img.get(stepB) & 0xFF;
             int g = img.get(stepG) & 0xFF;
             int r = img.get(stepR) & 0xFF;
-            for (Config.ALARM_TYPE config : Config.ALARM_TYPE.values()) {
+            for (Enums.ALARM_TYPE config : Enums.ALARM_TYPE.values()) {
                 int difB = Math.abs(config.getRgb()[2] - b);
                 int difG = Math.abs(config.getRgb()[1] - g);
                 int difR = Math.abs(config.getRgb()[0] - r);
                 if (difB + difG + difR < 20) {
                     vitalSign.setValue(config.toString());
-                    if (Config.WRITE_RESULTS) {
+                    if (Config.getInstance().getProp("consoleOutputEnabled").equals("true")) {
                         String out = "OP: " + vitalSign.getOp() + "; VS: " + vitalSign.getVitalSignType().toString() + "; VALUE: " + vitalSign.getValue();
                         System.out.println(out);
                     }
@@ -89,7 +89,7 @@ public class VitalSignAnalyzer {
             }
         }
         vitalSign.setValue("unknown");
-        if (Config.WRITE_RESULTS) {
+        if (Config.getInstance().getProp("consoleOutputEnabled").equals("true")) {
             String out = "OP: " + vitalSign.getOp() + "; VS: " + vitalSign.getVitalSignType().toString() + "; VALUE: " + vitalSign.getValue();
             System.out.println(out);
         }

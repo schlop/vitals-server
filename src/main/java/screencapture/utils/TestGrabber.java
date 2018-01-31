@@ -1,4 +1,4 @@
-package screencapture;
+package screencapture.utils;
 
 import org.bytedeco.javacpp.Loader;
 import org.bytedeco.javacpp.opencv_objdetect;

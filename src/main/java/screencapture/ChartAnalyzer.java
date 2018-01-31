@@ -24,13 +24,13 @@ public class ChartAnalyzer {
         opencv_core.CvRect cropBox = new opencv_core.CvRect();
         cropBox.x(posx);
         cropBox.y(posy);
-        cropBox.width(Config.VITAL_SIGN_TYPE.CHART.getWidth());
-        cropBox.height(Config.VITAL_SIGN_TYPE.CHART.getHeight());
+        cropBox.width(Enums.VITAL_SIGN_TYPE.CHART.getWidth());
+        cropBox.height(Enums.VITAL_SIGN_TYPE.CHART.getHeight());
         cvSetImageROI(image, cropBox);
         IplImage croppedImage = cvCloneImage(image);
         cvCopy(image, croppedImage);
 
-        String path = Config.CHART_PATH + "/" + op + ".png";
+        String path = Config.getInstance().getProp("extractedChartPath") + "/" + op + ".png";
         cvSaveImage(path, croppedImage);
         cvReleaseImage(croppedImage);
     }

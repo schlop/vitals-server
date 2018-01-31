@@ -38,9 +38,9 @@ public class ScreenCaptureController implements Runnable {
     private MainController mainController;
 
     private void setupScreenCapture() throws Exception {
-        grabber = VideoInputFrameGrabber.createDefault(Config.CAPTURE_DEVICE);
-        grabber.setImageWidth(Config.CAPTURE_WIDTH);
-        grabber.setImageHeight(Config.CAPTURE_HEIGHT);
+        grabber = VideoInputFrameGrabber.createDefault(Integer.parseInt(Config.getInstance().getProp("captureDeviceNumber")));
+        grabber.setImageWidth(Integer.parseInt(Config.getInstance().getProp("captureImageWidth")));
+        grabber.setImageHeight(Integer.parseInt(Config.getInstance().getProp("captureImageWidth")));
         grabber.start();
         grabbedImage = converter.convert(grabber.grab());
     }
@@ -52,7 +52,7 @@ public class ScreenCaptureController implements Runnable {
 
         //initialize screen capture
         converter = new OpenCVFrameConverter.ToIplImage();
-        if (!Config.USE_SCREENSHOT_AS_INPUT) {
+        if (!Config.getInstance().getProp("debugEnabled").equals("true")) {
             while (true) {
                 try {
                     setupScreenCapture();
@@ -69,7 +69,7 @@ public class ScreenCaptureController implements Runnable {
                 }
             }
         } else {
-            String debugFilePath = Config.DEBUG_PICTURE_PATH + "/vitalSignImage (13).png";
+            String debugFilePath = Config.getInstance().getProp("sampleImagePath");
             grabbedImage = cvLoadImage(debugFilePath);
         }
 
@@ -93,7 +93,7 @@ public class ScreenCaptureController implements Runnable {
                     if (vitalSign.getNodeType() == Node.ELEMENT_NODE) {
                         NodeList cords = vitalSign.getChildNodes();
 
-                        Config.VITAL_SIGN_TYPE vitalSignEnum = Config.VITAL_SIGN_TYPE.valueOf(vitalSign.getAttributes().item(0).getNodeValue());
+                        Enums.VITAL_SIGN_TYPE vitalSignEnum = Enums.VITAL_SIGN_TYPE.valueOf(vitalSign.getAttributes().item(0).getNodeValue());
                         int posXInt = 0;
                         int posYInt = 0;
 
@@ -104,7 +104,7 @@ public class ScreenCaptureController implements Runnable {
                                 else posYInt = Integer.parseInt(cord.getFirstChild().getNodeValue());
                             }
                         }
-                        if (vitalSignEnum != Config.VITAL_SIGN_TYPE.CHART) {
+                        if (vitalSignEnum != Enums.VITAL_SIGN_TYPE.CHART) {
                             VitalSign vs = new VitalSign(vitalSignEnum, opLabel);
                             VitalSignAnalyzer vsa = new VitalSignAnalyzer(vs, posXInt, posYInt);
                             vitalSignAnalyzers.add(vsa);
@@ -138,7 +138,7 @@ public class ScreenCaptureController implements Runnable {
             cvReleaseImage(copy);
         }
         mainController.vitalSignUpdate(vitalSigns);
-        if (Config.SAVE_OCR_IMAGES) {
+        if (Config.getInstance().getProp("validationEnabled").equals("true")) {
             recordScreen(grabbedImage, vitalSigns);
         }
         long duration = System.currentTimeMillis() - start;
@@ -150,11 +150,11 @@ public class ScreenCaptureController implements Runnable {
         for (int i = 0; i < vitalSigns.size(); i++) {
             VitalSign vs = vitalSigns.get(i);
             int[] pos = {vs.getPosx(), vs.getPosy()};
-            if (vs.getVitalSignType() != Config.VITAL_SIGN_TYPE.ALARM_LEVEL) {
+            if (vs.getVitalSignType() != Enums.VITAL_SIGN_TYPE.ALARM_LEVEL) {
                 cvPutText(grabbedImage, vs.getValue(), pos, font, opencv_core.CvScalar.WHITE);
             }
         }
-        String path = Config.VALIDATION_PATH + "/" + System.currentTimeMillis() + ".png";
+        String path = Config.getInstance().getProp("extractedValidationPath")+ "/" + System.currentTimeMillis() + ".png";
         cvSaveImage(path, grabbedImage);
     }
 }
