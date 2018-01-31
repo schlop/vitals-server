@@ -58,13 +58,13 @@ public class HttpServerController {
             });
             mapper = new ObjectMapper();
             vitalSignHandler = new VitalSignHandler();
-            httpsServer.createContext("/get", vitalSignHandler);
-            httpsServer.createContext("/0", new ChartHandler(0));
-            httpsServer.createContext("/1", new ChartHandler(1));
-            httpsServer.createContext("/2", new ChartHandler(2));
-            httpsServer.createContext("/3", new ChartHandler(3));
-            httpsServer.createContext("/4", new ChartHandler(4));
-            httpsServer.createContext("/5", new ChartHandler(5));
+            httpsServer.createContext("/RMDdplL04YjGKTUaN", vitalSignHandler);
+            httpsServer.createContext("/qYQgIHLgW0oO2urcb", new ChartHandler(0));
+            httpsServer.createContext("/4pCZzJ3TzDIyvxPsw", new ChartHandler(1));
+            httpsServer.createContext("/0JBdsF8kJimXUXJSO", new ChartHandler(2));
+            httpsServer.createContext("/7gWjVaSMtZwuav3pX", new ChartHandler(3));
+            httpsServer.createContext("/k8tSpNlGAE5XbGtxd", new ChartHandler(4));
+            httpsServer.createContext("/C1rU6XuFVEcjCWAwT", new ChartHandler(5));
             httpsServer.setExecutor(null);
         } catch (Exception e) {
             e.printStackTrace();
