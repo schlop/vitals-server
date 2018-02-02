@@ -48,6 +48,7 @@ public class VitalSignAnalyzer {
             IplImage adjustedImage = adjustImage(image);
             String path = Config.getInstance().getProp("extractedImagePath") + "/" + vitalSign.getOp() + vitalSign.getVitalSignType() + ".png";
             cvSaveImage(path, adjustedImage);
+            cvReleaseImage(adjustedImage);
             BytePointer outText;
             lept.PIX input = pixRead(path);
             ocr.SetImage(input);
@@ -56,8 +57,8 @@ public class VitalSignAnalyzer {
             output = output.replace("\n", "").replace("\r", "");
 
             vitalSign.setValue(output);
-            outText.close();
             pixDestroy(input);
+            outText.deallocate();
 
             if (Config.getInstance().getProp("consoleOutputEnabled").equals("true")) {
                 String out = "OP: " + vitalSign.getOp() + "; VS: " + vitalSign.getVitalSignType().toString() + "; VALUE: " + vitalSign.getValue();

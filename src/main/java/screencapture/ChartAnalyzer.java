@@ -33,5 +33,6 @@ public class ChartAnalyzer {
         String path = Config.getInstance().getProp("extractedChartPath") + "/" + op + ".png";
         cvSaveImage(path, croppedImage);
         cvReleaseImage(croppedImage);
+        cvReleaseImage(image);
     }
 }

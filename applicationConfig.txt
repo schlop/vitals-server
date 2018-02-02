@@ -6,12 +6,12 @@ sampleImagePath = debug/vitalSignImage1.png
 httpsCertPath = mycert.keystore
 
 validationEnabled = false
-debugEnabled = true
+debugEnabled = false
 httpsEnabled = true
 consoleOutputEnabled = false
 
 captureDeviceNumber = 0
-captureInterval = 2000
+captureInterval = 1000
 captureImageWidth = 1920
 captureImageHeight = 1080
 

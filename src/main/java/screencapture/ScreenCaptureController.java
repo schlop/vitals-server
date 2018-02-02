@@ -5,6 +5,8 @@ import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.IplImage;
 import org.bytedeco.javacpp.opencv_imgproc.CvFont;
 import org.bytedeco.javacpp.opencv_objdetect;
+import org.bytedeco.javacv.Frame;
+import org.bytedeco.javacv.FrameGrabber;
 import org.bytedeco.javacv.OpenCVFrameConverter;
 import org.bytedeco.javacv.VideoInputFrameGrabber;
 import org.w3c.dom.Document;
@@ -40,9 +42,12 @@ public class ScreenCaptureController implements Runnable {
     private void setupScreenCapture() throws Exception {
         grabber = VideoInputFrameGrabber.createDefault(Integer.parseInt(Config.getInstance().getProp("captureDeviceNumber")));
         grabber.setImageWidth(Integer.parseInt(Config.getInstance().getProp("captureImageWidth")));
-        grabber.setImageHeight(Integer.parseInt(Config.getInstance().getProp("captureImageWidth")));
+        grabber.setImageHeight(Integer.parseInt(Config.getInstance().getProp("captureImageHeight")));
         grabber.start();
         grabbedImage = converter.convert(grabber.grab());
+        cvSaveImage("bild.png", grabbedImage);
+        System.out.println(grabbedImage.width());
+        System.out.println(grabbedImage.height());
     }
 
     public ScreenCaptureController(MainController mainController) {
@@ -124,23 +129,26 @@ public class ScreenCaptureController implements Runnable {
 
     public void run() {
         long start = System.currentTimeMillis();
-        IplImage image = grabbedImage.clone();
+        IplImage myImage = grabbedImage.clone();
         ArrayList<VitalSign> vitalSigns = new ArrayList<VitalSign>();
         for (VitalSignAnalyzer vsa : vitalSignAnalyzers) {
-            IplImage copy = grabbedImage.clone();
+            IplImage copy = myImage.clone();
             VitalSign vitalSign = vsa.processImage(copy);
             vitalSigns.add(vitalSign);
             cvReleaseImage(copy);
         }
         for (ChartAnalyzer ca : chartAnalyzers) {
-            IplImage copy = grabbedImage.clone();
+            IplImage copy = myImage.clone();
             ca.processImage(copy);
             cvReleaseImage(copy);
         }
         mainController.vitalSignUpdate(vitalSigns);
         if (Config.getInstance().getProp("validationEnabled").equals("true")) {
-            recordScreen(grabbedImage, vitalSigns);
+            IplImage copy = myImage.clone();
+            recordScreen(copy, vitalSigns);
+            cvReleaseImage(copy);
         }
+        cvReleaseImage(myImage);
         long duration = System.currentTimeMillis() - start;
         System.out.println("[SCREEN CAPTURE] Analyzed vital signs in " + duration + " ms");
     }
@@ -156,5 +164,6 @@ public class ScreenCaptureController implements Runnable {
         }
         String path = Config.getInstance().getProp("extractedValidationPath")+ "/" + System.currentTimeMillis() + ".png";
         cvSaveImage(path, grabbedImage);
+        cvReleaseImage(grabbedImage);
     }
 }
