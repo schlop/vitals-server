@@ -21,18 +21,19 @@ public class ChartAnalyzer {
     }
 
     public void processImage(IplImage image) {
+        IplImage copiedImage = image.clone();
         opencv_core.CvRect cropBox = new opencv_core.CvRect();
         cropBox.x(posx);
         cropBox.y(posy);
         cropBox.width(Enums.VITAL_SIGN_TYPE.CHART.getWidth());
         cropBox.height(Enums.VITAL_SIGN_TYPE.CHART.getHeight());
-        cvSetImageROI(image, cropBox);
-        IplImage croppedImage = cvCloneImage(image);
-        cvCopy(image, croppedImage);
+        cvSetImageROI(copiedImage, cropBox);
+        IplImage croppedImage = copiedImage.clone();
+        cvCopy(copiedImage, croppedImage);
 
         String path = Config.getInstance().getProp("extractedChartPath") + "/" + op + ".png";
         cvSaveImage(path, croppedImage);
-        cvReleaseImage(croppedImage);
-        cvReleaseImage(image);
+        croppedImage.release();
+        copiedImage.release();
     }
 }

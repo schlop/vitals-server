@@ -59,6 +59,7 @@ public class HttpServerController {
             mapper = new ObjectMapper();
             vitalSignHandler = new VitalSignHandler();
             httpsServer.createContext("/RMDdplL04YjGKTUaN", vitalSignHandler);
+            httpsServer.createContext("/get", vitalSignHandler);
             httpsServer.createContext("/qYQgIHLgW0oO2urcb", new ChartHandler(0));
             httpsServer.createContext("/4pCZzJ3TzDIyvxPsw", new ChartHandler(1));
             httpsServer.createContext("/0JBdsF8kJimXUXJSO", new ChartHandler(2));

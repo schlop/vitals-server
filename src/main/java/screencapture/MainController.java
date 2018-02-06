@@ -3,7 +3,6 @@ package screencapture;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Paul on 12/09/2017.
@@ -33,12 +32,14 @@ public class MainController {
     }
 
     public void start() {
-        scheduler.scheduleAtFixedRate(sc, 0, Integer.parseInt(Config.getInstance().getProp("captureInterval")), TimeUnit.MILLISECONDS);
+//        scheduler.scheduleAtFixedRate(sc, 0, Integer.parseInt(Config.getInstance().getProp("captureInterval")), TimeUnit.MILLISECONDS);
         hc.start();
+        sc.start();
     }
 
     public void startWithoutServer() {
-        scheduler.scheduleAtFixedRate(sc, 0, Integer.parseInt(Config.getInstance().getProp("captureInterval")), TimeUnit.MILLISECONDS);
+        //scheduler.scheduleAtFixedRate(sc, 0, Integer.parseInt(Config.getInstance().getProp("captureInterval")), TimeUnit.MILLISECONDS);
+        sc.start();
     }
 
     public void stop() {

@@ -5,10 +5,8 @@ import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.IplImage;
 import org.bytedeco.javacpp.opencv_imgproc.CvFont;
 import org.bytedeco.javacpp.opencv_objdetect;
-import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.FrameGrabber;
 import org.bytedeco.javacv.OpenCVFrameConverter;
-import org.bytedeco.javacv.VideoInputFrameGrabber;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -19,7 +17,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.bytedeco.javacpp.opencv_core.cvReleaseImage;
 import static org.bytedeco.javacpp.opencv_imgcodecs.cvLoadImage;
 import static org.bytedeco.javacpp.opencv_imgcodecs.cvSaveImage;
 import static org.bytedeco.javacpp.opencv_imgproc.cvFont;
@@ -29,9 +26,9 @@ import static org.bytedeco.javacpp.opencv_imgproc.cvPutText;
 /**
  * Created by Paul on 11/09/2017.
  */
-public class ScreenCaptureController implements Runnable {
+public class ScreenCaptureController {
     private IplImage grabbedImage;
-    private VideoInputFrameGrabber grabber;
+    private FrameGrabber grabber;
     private OpenCVFrameConverter.ToIplImage converter;
 
     private ArrayList<VitalSignAnalyzer> vitalSignAnalyzers;
@@ -40,12 +37,12 @@ public class ScreenCaptureController implements Runnable {
     private MainController mainController;
 
     private void setupScreenCapture() throws Exception {
-        grabber = VideoInputFrameGrabber.createDefault(Integer.parseInt(Config.getInstance().getProp("captureDeviceNumber")));
+        grabber = FrameGrabber.createDefault(Integer.parseInt(Config.getInstance().getProp("captureDeviceNumber")));
         grabber.setImageWidth(Integer.parseInt(Config.getInstance().getProp("captureImageWidth")));
         grabber.setImageHeight(Integer.parseInt(Config.getInstance().getProp("captureImageHeight")));
+        grabber.setImageMode(FrameGrabber.ImageMode.COLOR);
         grabber.start();
         grabbedImage = converter.convert(grabber.grab());
-        cvSaveImage("bild.png", grabbedImage);
         System.out.println(grabbedImage.width());
         System.out.println(grabbedImage.height());
     }
@@ -65,6 +62,7 @@ public class ScreenCaptureController implements Runnable {
                     break;
                 } catch (Exception e) {
                     System.out.println("Could no establish Screen Capture");
+                    e.printStackTrace();
                     try {
                         Thread.sleep(20000);
                     } catch (InterruptedException e1) {
@@ -114,7 +112,7 @@ public class ScreenCaptureController implements Runnable {
                             VitalSignAnalyzer vsa = new VitalSignAnalyzer(vs, posXInt, posYInt);
                             vitalSignAnalyzers.add(vsa);
                         } else {
-                            ChartAnalyzer ca = new ChartAnalyzer(posXInt, posYInt,opLabel);
+                            ChartAnalyzer ca = new ChartAnalyzer(posXInt, posYInt, opLabel);
                             chartAnalyzers.add(ca);
                         }
                     }
@@ -129,41 +127,64 @@ public class ScreenCaptureController implements Runnable {
 
     public void run() {
         long start = System.currentTimeMillis();
-        IplImage myImage = grabbedImage.clone();
+        IplImage image = grabbedImage.clone();
         ArrayList<VitalSign> vitalSigns = new ArrayList<VitalSign>();
         for (VitalSignAnalyzer vsa : vitalSignAnalyzers) {
-            IplImage copy = myImage.clone();
-            VitalSign vitalSign = vsa.processImage(copy);
+            VitalSign vitalSign = vsa.processImage(image);
             vitalSigns.add(vitalSign);
-            cvReleaseImage(copy);
         }
         for (ChartAnalyzer ca : chartAnalyzers) {
-            IplImage copy = myImage.clone();
-            ca.processImage(copy);
-            cvReleaseImage(copy);
+            ca.processImage(image);
         }
         mainController.vitalSignUpdate(vitalSigns);
         if (Config.getInstance().getProp("validationEnabled").equals("true")) {
-            IplImage copy = myImage.clone();
-            recordScreen(copy, vitalSigns);
-            cvReleaseImage(copy);
+            recordScreen(image, vitalSigns);
         }
-        cvReleaseImage(myImage);
+        image.release();
         long duration = System.currentTimeMillis() - start;
         System.out.println("[SCREEN CAPTURE] Analyzed vital signs in " + duration + " ms");
     }
 
-    private void recordScreen(IplImage grabbedImage, List<VitalSign> vitalSigns) {
+    public void start() {
+        Thread thread = new Thread() {
+            public void run() {
+                while (true) {
+                    long start = System.currentTimeMillis();
+                    IplImage image = grabbedImage.clone();
+                    ArrayList<VitalSign> vitalSigns = new ArrayList<VitalSign>();
+                    for (VitalSignAnalyzer vsa : vitalSignAnalyzers) {
+                        VitalSign vitalSign = vsa.processImage(image);
+                        vitalSigns.add(vitalSign);
+                    }
+                    for (ChartAnalyzer ca : chartAnalyzers) {
+                        ca.processImage(image);
+                    }
+                    mainController.vitalSignUpdate(vitalSigns);
+                    if (Config.getInstance().getProp("validationEnabled").equals("true")) {
+                        recordScreen(image, vitalSigns);
+                    }
+                    image.release();
+                    long duration = System.currentTimeMillis() - start;
+                    System.out.println("[SCREEN CAPTURE] Analyzed vital signs in " + duration + " ms");
+                }
+            }
+        };
+        thread.start();
+    }
+
+
+    private void recordScreen(IplImage image, List<VitalSign> vitalSigns) {
+        IplImage copyedImage = image.clone();
         CvFont font = cvFont(1, 1);
         for (int i = 0; i < vitalSigns.size(); i++) {
             VitalSign vs = vitalSigns.get(i);
             int[] pos = {vs.getPosx(), vs.getPosy()};
             if (vs.getVitalSignType() != Enums.VITAL_SIGN_TYPE.ALARM_LEVEL) {
-                cvPutText(grabbedImage, vs.getValue(), pos, font, opencv_core.CvScalar.WHITE);
+                cvPutText(copyedImage, vs.getValue(), pos, font, opencv_core.CvScalar.WHITE);
             }
         }
-        String path = Config.getInstance().getProp("extractedValidationPath")+ "/" + System.currentTimeMillis() + ".png";
-        cvSaveImage(path, grabbedImage);
-        cvReleaseImage(grabbedImage);
+        String path = Config.getInstance().getProp("extractedValidationPath") + "/" + System.currentTimeMillis() + ".png";
+        cvSaveImage(path, copyedImage);
+        copyedImage.release();
     }
 }

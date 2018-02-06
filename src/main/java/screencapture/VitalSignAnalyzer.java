@@ -44,11 +44,12 @@ public class VitalSignAnalyzer {
     }
 
     public VitalSign processImage(IplImage image) {
+        IplImage imageCopy = image.clone();
         if (vitalSign.getVitalSignType() != Enums.VITAL_SIGN_TYPE.ALARM_LEVEL) {
-            IplImage adjustedImage = adjustImage(image);
+            IplImage adjustedImage = adjustImage(imageCopy);
             String path = Config.getInstance().getProp("extractedImagePath") + "/" + vitalSign.getOp() + vitalSign.getVitalSignType() + ".png";
             cvSaveImage(path, adjustedImage);
-            cvReleaseImage(adjustedImage);
+            adjustedImage.release();
             BytePointer outText;
             lept.PIX input = pixRead(path);
             ocr.SetImage(input);
@@ -58,19 +59,18 @@ public class VitalSignAnalyzer {
 
             vitalSign.setValue(output);
             pixDestroy(input);
-            outText.deallocate();
 
             if (Config.getInstance().getProp("consoleOutputEnabled").equals("true")) {
                 String out = "OP: " + vitalSign.getOp() + "; VS: " + vitalSign.getVitalSignType().toString() + "; VALUE: " + vitalSign.getValue();
                 System.out.println(out);
             }
-            cvReleaseImage(image);
+            imageCopy.release();
             return vitalSign;
         } else {
-            ByteBuffer img = image.getByteBuffer();
-            int stepB = posy * image.widthStep() + posx * image.nChannels() + 0;
-            int stepG = posy * image.widthStep() + posx * image.nChannels() + 1;
-            int stepR = posy * image.widthStep() + posx * image.nChannels() + 2;
+            ByteBuffer img = imageCopy.getByteBuffer();
+            int stepB = posy * imageCopy.widthStep() + posx * imageCopy.nChannels() + 0;
+            int stepG = posy * imageCopy.widthStep() + posx * imageCopy.nChannels() + 1;
+            int stepR = posy * imageCopy.widthStep() + posx * imageCopy.nChannels() + 2;
             int b = img.get(stepB) & 0xFF;
             int g = img.get(stepG) & 0xFF;
             int r = img.get(stepR) & 0xFF;
@@ -84,7 +84,7 @@ public class VitalSignAnalyzer {
                         String out = "OP: " + vitalSign.getOp() + "; VS: " + vitalSign.getVitalSignType().toString() + "; VALUE: " + vitalSign.getValue();
                         System.out.println(out);
                     }
-                    cvReleaseImage(image);
+                    imageCopy.release();
                     return vitalSign;
                 }
             }
@@ -94,24 +94,25 @@ public class VitalSignAnalyzer {
             String out = "OP: " + vitalSign.getOp() + "; VS: " + vitalSign.getVitalSignType().toString() + "; VALUE: " + vitalSign.getValue();
             System.out.println(out);
         }
-        cvReleaseImage(image);
+        imageCopy.release();
         return vitalSign;
     }
 
 
     private IplImage adjustImage(IplImage image) {
         //crop
+        int width = vitalSign.getVitalSignType().getWidth();
+        int height = vitalSign.getVitalSignType().getHeight();
         CvRect cropBox = new CvRect();
         cropBox.x(posx);
         cropBox.y(posy);
         cropBox.width(vitalSign.getVitalSignType().getWidth());
         cropBox.height(vitalSign.getVitalSignType().getHeight());
         cvSetImageROI(image, cropBox);
-        IplImage croppedImage = cvCloneImage(image);
-        cvCopy(image, croppedImage);
+        IplImage croppedImage = image.clone();
 
         //gray
-        IplImage coloredImage = cvCreateImage(cvGetSize(croppedImage), IPL_DEPTH_8U, 1);
+        IplImage coloredImage = IplImage.create(width, height, IPL_DEPTH_8U, 1);
         cvCvtColor(image, coloredImage, CV_BGR2GRAY);
 
         //upscale
@@ -124,11 +125,10 @@ public class VitalSignAnalyzer {
         //clone
         IplImage returnImage = resizedImage.clone();
 
-        //release
-        cvReleaseImage(croppedImage);
-        cvReleaseImage(coloredImage);
-        cvReleaseImage(resizedImage);
-        cvReleaseImage(image);
+
+        croppedImage.release();
+        coloredImage.release();
+        resizedImage.release();
 
         return returnImage;
     }
