@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+/**
+ * Singleton class that reads application configuration from a text file
+ */
 public class Config {
     private static Config instance = null;
     private Properties prop;
@@ -41,7 +44,7 @@ public class Config {
         return instance;
     }
 
-    public String getProp(String key){
+    public String getProp(String key) {
         return prop.getProperty(key);
     }
 }

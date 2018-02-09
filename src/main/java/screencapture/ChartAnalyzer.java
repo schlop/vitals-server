@@ -8,6 +8,9 @@ import static org.bytedeco.javacpp.opencv_imgcodecs.cvSaveImage;
 
 /**
  * Created by Paul on 29/01/2018.
+ * Extracts the area of the screen displaying the ECG charts
+ * No OCR is required
+ *
  */
 public class ChartAnalyzer {
     int posx;

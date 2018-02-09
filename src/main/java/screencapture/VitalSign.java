@@ -2,6 +2,8 @@ package screencapture;
 
 /**
  * Created by Paul on 12/09/2017.
+ * Model of a vital sign
+ * Data structure is kept very general to allow use with different types of vital signs
  */
 public class VitalSign {
 

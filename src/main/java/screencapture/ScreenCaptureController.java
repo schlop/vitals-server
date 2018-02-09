@@ -25,6 +25,9 @@ import static org.bytedeco.javacpp.opencv_imgproc.cvPutText;
 
 /**
  * Created by Paul on 11/09/2017.
+ * <p>
+ * Reads the position of the different VitalSignAnalyzers from an XML config file
+ * After setup loops over the analyzers and requests vital sign data in an endless loop
  */
 public class ScreenCaptureController {
     private IplImage grabbedImage;
@@ -95,7 +98,6 @@ public class ScreenCaptureController {
                     Node vitalSign = vitalSigns.item(j);
                     if (vitalSign.getNodeType() == Node.ELEMENT_NODE) {
                         NodeList cords = vitalSign.getChildNodes();
-
                         Enums.VITAL_SIGN_TYPE vitalSignEnum = Enums.VITAL_SIGN_TYPE.valueOf(vitalSign.getAttributes().item(0).getNodeValue());
                         int posXInt = 0;
                         int posYInt = 0;
@@ -179,7 +181,8 @@ public class ScreenCaptureController {
         for (int i = 0; i < vitalSigns.size(); i++) {
             VitalSign vs = vitalSigns.get(i);
             int[] pos = {vs.getPosx(), vs.getPosy()};
-            if (vs.getVitalSignType() != Enums.VITAL_SIGN_TYPE.ALARM_LEVEL) {
+            if (vs.getVitalSignType() != Enums.VITAL_SIGN_TYPE.ALARM_LEVEL1 &&
+                    vs.getVitalSignType() != Enums.VITAL_SIGN_TYPE.ALARM_LEVEL2) {
                 cvPutText(copyedImage, vs.getValue(), pos, font, opencv_core.CvScalar.WHITE);
             }
         }

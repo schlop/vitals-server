@@ -15,6 +15,9 @@ import static org.bytedeco.javacpp.opencv_imgproc.*;
 
 /**
  * Created by Paul on 12/09/2017.
+ *
+ * Analyzes a small area of the screen with OCR and extracts characters. For each numeric or word an instance of this
+ * class is created.
  */
 public class VitalSignAnalyzer {
 
@@ -32,20 +35,23 @@ public class VitalSignAnalyzer {
         vitalSign.setPosx(posx);
         vitalSign.setPosy(posy);
 
-        if (vitalSign.getVitalSignType() != Enums.VITAL_SIGN_TYPE.ALARM_LEVEL) {
+        if (vitalSign.getVitalSignType() != Enums.VITAL_SIGN_TYPE.ALARM_LEVEL1 &&
+                vitalSign.getVitalSignType() != Enums.VITAL_SIGN_TYPE.ALARM_LEVEL2) {
             this.ocr = new tesseract.TessBaseAPI();
             if (this.ocr.Init("", "eng") != 0) {
                 System.err.println("Could not initialize tesseract.");
                 System.exit(1);
             }
-            if (vitalSign.getVitalSignType() != Enums.VITAL_SIGN_TYPE.ALARM)
+            if (vitalSign.getVitalSignType() != Enums.VITAL_SIGN_TYPE.ALARM1 ||
+                    vitalSign.getVitalSignType() != Enums.VITAL_SIGN_TYPE.ALARM2)
                 this.ocr.SetVariable("tessedit_char_whitelist", vitalSign.getVitalSignType().getPossibleChars());
         }
     }
 
     public VitalSign processImage(IplImage image) {
         IplImage imageCopy = image.clone();
-        if (vitalSign.getVitalSignType() != Enums.VITAL_SIGN_TYPE.ALARM_LEVEL) {
+        if (vitalSign.getVitalSignType() != Enums.VITAL_SIGN_TYPE.ALARM_LEVEL1 &&
+                vitalSign.getVitalSignType() != Enums.VITAL_SIGN_TYPE.ALARM_LEVEL2) {
             IplImage adjustedImage = adjustImage(imageCopy);
             String path = Config.getInstance().getProp("extractedImagePath") + "/" + vitalSign.getOp() + vitalSign.getVitalSignType() + ".png";
             cvSaveImage(path, adjustedImage);
@@ -78,7 +84,7 @@ public class VitalSignAnalyzer {
                 int difB = Math.abs(config.getRgb()[2] - b);
                 int difG = Math.abs(config.getRgb()[1] - g);
                 int difR = Math.abs(config.getRgb()[0] - r);
-                if (difB + difG + difR < 20) {
+                if (difB + difG + difR < 10) {
                     vitalSign.setValue(config.toString());
                     if (Config.getInstance().getProp("consoleOutputEnabled").equals("true")) {
                         String out = "OP: " + vitalSign.getOp() + "; VS: " + vitalSign.getVitalSignType().toString() + "; VALUE: " + vitalSign.getValue();

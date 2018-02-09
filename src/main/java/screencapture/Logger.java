@@ -9,6 +9,13 @@ import java.util.HashMap;
 
 /**
  * Created by Paul on 30/10/2017.
+ *
+ * Writes a log file. The file contains:
+ * - timestamp
+ * - op
+ * - alarm level
+ * - alarm message
+ * Entries are only added when there was a change (alarm level or alarm status changed)
  */
 public class Logger {
 

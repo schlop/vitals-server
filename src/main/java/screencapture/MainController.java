@@ -1,13 +1,13 @@
 package screencapture;
 
 import java.util.ArrayList;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Created by Paul on 12/09/2017.
+ * Starts the application by initializing https server and screen capture controller
+ * Capture interval is now managed by the screen capture controller
  */
-
 public class MainController {
 
     private ScheduledExecutorService scheduler;
@@ -28,7 +28,7 @@ public class MainController {
         sc = new ScreenCaptureController(this);
         hc = new HttpServerController(this);
         log = new Logger();
-        scheduler = Executors.newSingleThreadScheduledExecutor();
+        //scheduler = Executors.newSingleThreadScheduledExecutor();
     }
 
     public void start() {
@@ -56,11 +56,13 @@ public class MainController {
         }
         //hand over alarms to log
         for (VitalSign vs : vitalSigns) {
-            if (vs.getVitalSignType() == Enums.VITAL_SIGN_TYPE.ALARM_LEVEL) {
+            if (vs.getVitalSignType() == Enums.VITAL_SIGN_TYPE.ALARM_LEVEL1 ||
+                    vs.getVitalSignType() == Enums.VITAL_SIGN_TYPE.ALARM_LEVEL2) {
                 int op = vs.getOp();
                 String alarmLevel = vs.getValue();
                 for (VitalSign alarmvs : vitalSigns) {
-                    if (alarmvs.getVitalSignType() == Enums.VITAL_SIGN_TYPE.ALARM && alarmvs.getOp() == op) {
+                    if ((alarmvs.getVitalSignType() == Enums.VITAL_SIGN_TYPE.ALARM1 && alarmvs.getOp() == op) ||
+                            (alarmvs.getVitalSignType() == Enums.VITAL_SIGN_TYPE.ALARM2 && alarmvs.getOp() == op)) {
                         String alarmMessage = alarmvs.getValue();
                         log.logNewAlarm(op, alarmLevel, alarmMessage);
                     }

@@ -12,6 +12,8 @@ import java.util.ArrayList;
 
 /**
  * Created by Paul on 29/10/2017.
+ *
+ * Publishes the vital sign data via HTTPS
  */
 public class HttpServerController {
 
@@ -58,8 +60,8 @@ public class HttpServerController {
             });
             mapper = new ObjectMapper();
             vitalSignHandler = new VitalSignHandler();
-            httpsServer.createContext("/RMDdplL04YjGKTUaN", vitalSignHandler);
             httpsServer.createContext("/get", vitalSignHandler);
+            httpsServer.createContext("/RMDdplL04YjGKTUaN", vitalSignHandler);
             httpsServer.createContext("/qYQgIHLgW0oO2urcb", new ChartHandler(0));
             httpsServer.createContext("/4pCZzJ3TzDIyvxPsw", new ChartHandler(1));
             httpsServer.createContext("/0JBdsF8kJimXUXJSO", new ChartHandler(2));
