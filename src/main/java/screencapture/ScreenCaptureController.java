@@ -43,7 +43,6 @@ public class ScreenCaptureController {
         grabber = FrameGrabber.createDefault(Integer.parseInt(Config.getInstance().getProp("captureDeviceNumber")));
         grabber.setImageWidth(Integer.parseInt(Config.getInstance().getProp("captureImageWidth")));
         grabber.setImageHeight(Integer.parseInt(Config.getInstance().getProp("captureImageHeight")));
-        grabber.setImageMode(FrameGrabber.ImageMode.COLOR);
         grabber.start();
         grabbedImage = converter.convert(grabber.grab());
         System.out.println(grabbedImage.width());
@@ -147,10 +146,18 @@ public class ScreenCaptureController {
         System.out.println("[SCREEN CAPTURE] Analyzed vital signs in " + duration + " ms");
     }
 
+
     public void start() {
         Thread thread = new Thread() {
             public void run() {
                 while (true) {
+                    if (!Config.getInstance().getProp("debugEnabled").equals("true")) {
+                        try {
+                            grabber.grab();
+                        } catch (FrameGrabber.Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
                     long start = System.currentTimeMillis();
                     IplImage image = grabbedImage.clone();
                     ArrayList<VitalSign> vitalSigns = new ArrayList<VitalSign>();

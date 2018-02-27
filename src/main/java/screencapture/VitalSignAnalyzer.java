@@ -42,6 +42,7 @@ public class VitalSignAnalyzer {
                 System.err.println("Could not initialize tesseract.");
                 System.exit(1);
             }
+            ocr.SetPageSegMode(6);
             if (vitalSign.getVitalSignType() != Enums.VITAL_SIGN_TYPE.ALARM1 ||
                     vitalSign.getVitalSignType() != Enums.VITAL_SIGN_TYPE.ALARM2)
                 this.ocr.SetVariable("tessedit_char_whitelist", vitalSign.getVitalSignType().getPossibleChars());
@@ -62,6 +63,10 @@ public class VitalSignAnalyzer {
             outText = ocr.GetUTF8Text();
             String output = outText.getString();
             output = output.replace("\n", "").replace("\r", "");
+            if(!vitalSign.getVitalSignType().equals(Enums.VITAL_SIGN_TYPE.ALARM1) &&
+                    !vitalSign.getVitalSignType().equals(Enums.VITAL_SIGN_TYPE.ALARM2)){
+                output = output.replace(" ", "");
+            }
 
             vitalSign.setValue(output);
             pixDestroy(input);
@@ -112,8 +117,8 @@ public class VitalSignAnalyzer {
         CvRect cropBox = new CvRect();
         cropBox.x(posx);
         cropBox.y(posy);
-        cropBox.width(vitalSign.getVitalSignType().getWidth());
-        cropBox.height(vitalSign.getVitalSignType().getHeight());
+        cropBox.width(width);
+        cropBox.height(height);
         cvSetImageROI(image, cropBox);
         IplImage croppedImage = image.clone();
 
@@ -122,15 +127,15 @@ public class VitalSignAnalyzer {
         cvCvtColor(image, coloredImage, CV_BGR2GRAY);
 
         //upscale
-        IplImage resizedImage = IplImage.create(coloredImage.width() * 4, coloredImage.height() * 4, coloredImage.depth(), coloredImage.nChannels());
+        IplImage resizedImage = IplImage.create(width * 2, height * 2, coloredImage.depth(), coloredImage.nChannels());
         cvResize(coloredImage, resizedImage);
 
         //otsu
         cvThreshold(resizedImage, resizedImage, 0, 255, CV_THRESH_OTSU);
 
+
         //clone
         IplImage returnImage = resizedImage.clone();
-
 
         croppedImage.release();
         coloredImage.release();
