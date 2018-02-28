@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 
 /**
  * Created by Paul on 30/10/2017.
@@ -19,11 +19,14 @@ import java.util.HashMap;
  */
 public class Logger {
 
-    private HashMap<Integer, String> previousVitalSignStrings;
+    private ArrayList<String> previousVitalSignStrings;
     private FileWriter alarmsFileWriter;
 
     public Logger() {
-        previousVitalSignStrings = new HashMap<Integer, String>();
+        previousVitalSignStrings = new ArrayList<String>();
+        for (int i = 0; i < 70; i++) {
+            previousVitalSignStrings.add("");
+        }
 
         String pattern = "ddMMMM_hhmm";
         Calendar cal = Calendar.getInstance();
@@ -45,10 +48,11 @@ public class Logger {
 
     public void logNewAlarm(int op, String alarmLevel, String alarmMessage) {
         String csvString = op + "," + alarmLevel + "," + alarmMessage;
-        if (!previousVitalSignStrings.containsValue(csvString)) {
-            String csvStringTime = System.currentTimeMillis() + "," + csvString;
-            writeToCSV(alarmsFileWriter, csvStringTime);
-            previousVitalSignStrings.put(op, csvString);
+        String previousVitalSign = previousVitalSignStrings.get(op);
+        if (!previousVitalSign.equals(csvString)){
+            writeToCSV(alarmsFileWriter, System.currentTimeMillis() + "," + csvString);
+            previousVitalSignStrings.set(op, csvString);
+            System.out.println("[LOGGER] Wrote status change");
         }
     }
 

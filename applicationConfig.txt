@@ -5,10 +5,10 @@ csvOutputPath = output
 sampleImagePath = debug/VS_new2.png
 httpsCertPath = mycert.keystore
 
-validationEnabled = true
+validationEnabled = false
 debugEnabled = true
-httpsEnabled = false
-consoleOutputEnabled = true
+httpsEnabled = true
+consoleOutputEnabled = false
 
 auth = true
 

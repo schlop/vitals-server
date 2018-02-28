@@ -56,15 +56,23 @@ public class MainController {
         }
         //hand over alarms to log
         for (VitalSign vs : vitalSigns) {
-            if (vs.getVitalSignType() == Enums.VITAL_SIGN_TYPE.ALARM_LEVEL1 ||
-                    vs.getVitalSignType() == Enums.VITAL_SIGN_TYPE.ALARM_LEVEL2) {
+            if (vs.getVitalSignType() == Enums.VITAL_SIGN_TYPE.ALARM_LEVEL1) {
                 int op = vs.getOp();
                 String alarmLevel = vs.getValue();
                 for (VitalSign alarmvs : vitalSigns) {
-                    if ((alarmvs.getVitalSignType() == Enums.VITAL_SIGN_TYPE.ALARM1 && alarmvs.getOp() == op) ||
-                            (alarmvs.getVitalSignType() == Enums.VITAL_SIGN_TYPE.ALARM2 && alarmvs.getOp() == op)) {
+                    if (alarmvs.getVitalSignType() == Enums.VITAL_SIGN_TYPE.ALARM1 && alarmvs.getOp() == op) {
                         String alarmMessage = alarmvs.getValue();
-                        log.logNewAlarm(op, alarmLevel, alarmMessage);
+                        log.logNewAlarm(op * 10 + 1, alarmLevel, alarmMessage);
+                    }
+                }
+            }
+            if (vs.getVitalSignType() == Enums.VITAL_SIGN_TYPE.ALARM_LEVEL2) {
+                int op = vs.getOp();
+                String alarmLevel = vs.getValue();
+                for (VitalSign alarmvs : vitalSigns) {
+                    if (alarmvs.getVitalSignType() == Enums.VITAL_SIGN_TYPE.ALARM2 && alarmvs.getOp() == op) {
+                        String alarmMessage = alarmvs.getValue();
+                        log.logNewAlarm(op * 10 + 2, alarmLevel, alarmMessage);
                     }
                 }
             }
