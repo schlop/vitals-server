@@ -99,6 +99,7 @@ public class VitalSignAnalyzer {
                     return vitalSign;
                 }
             }
+            System.out.println(r + " " + g + " " + b);
         }
         vitalSign.setValue("unknown");
         if (Config.getInstance().getProp("consoleOutputEnabled").equals("true")) {

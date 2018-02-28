@@ -11,7 +11,7 @@ public class Enums {
         private int[] none_rgb = {0, 0, 0};
         private int[] notification_rgb = {77, 255, 255};
         private int[] warning_rgb = {253, 255, 76};
-        private int[] alarm_rgb = {255, 25, 55};
+        private int[] alarm_rgb = {240, 8, 37};
         private int[] label_rgb = {255, 255, 255};
 
         public int[] getRgb(){
