@@ -47,12 +47,15 @@ public class Logger {
     }
 
     public void logNewAlarm(int op, String alarmLevel, String alarmMessage) {
-        String csvString = op + "," + alarmLevel + "," + alarmMessage;
+        String alarmLevelOp = op + alarmLevel;
         String previousVitalSign = previousVitalSignStrings.get(op);
-        if (!previousVitalSign.equals(csvString)){
-            writeToCSV(alarmsFileWriter, System.currentTimeMillis() + "," + csvString);
-            previousVitalSignStrings.set(op, csvString);
-            System.out.println("[LOGGER] Wrote status change");
+        if (!previousVitalSign.equals(alarmLevelOp)){
+            previousVitalSignStrings.set(op, alarmLevelOp);
+            if (alarmLevel.equals(Enums.ALARM_TYPE.WARNING.toString()) || alarmLevel.equals(Enums.ALARM_TYPE.ALARM.toString())){
+                String csvString = System.currentTimeMillis() + "," + op + "," + alarmLevel + "," + alarmMessage;
+                writeToCSV(alarmsFileWriter, csvString);
+                System.out.println("[LOGGER] Wrote status change");
+            }
         }
     }
 

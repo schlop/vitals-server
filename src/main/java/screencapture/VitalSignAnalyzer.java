@@ -89,7 +89,7 @@ public class VitalSignAnalyzer {
                 int difB = Math.abs(config.getRgb()[2] - b);
                 int difG = Math.abs(config.getRgb()[1] - g);
                 int difR = Math.abs(config.getRgb()[0] - r);
-                if (difB + difG + difR < 10) {
+                if (difB + difG + difR < 30) {
                     vitalSign.setValue(config.toString());
                     if (Config.getInstance().getProp("consoleOutputEnabled").equals("true")) {
                         String out = "OP: " + vitalSign.getOp() + "; VS: " + vitalSign.getVitalSignType().toString() + "; VALUE: " + vitalSign.getValue();
@@ -99,7 +99,7 @@ public class VitalSignAnalyzer {
                     return vitalSign;
                 }
             }
-            System.out.println(r + " " + g + " " + b);
+            //System.out.println(r + " " + g + " " + b);
         }
         vitalSign.setValue("unknown");
         if (Config.getInstance().getProp("consoleOutputEnabled").equals("true")) {

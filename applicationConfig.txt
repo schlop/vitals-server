@@ -2,7 +2,7 @@ extractedImagePath = extracted
 extractedChartPath = charts
 extractedValidationPath = validation
 csvOutputPath = output
-sampleImagePath = debug/valid2.png
+sampleImagePath = debug/valid3.png
 httpsCertPath = mycert.keystore
 
 validationEnabled = false

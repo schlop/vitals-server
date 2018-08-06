@@ -56,7 +56,7 @@ public class MainController {
         }
         //hand over alarms to log
         for (VitalSign vs : vitalSigns) {
-            if (vs.getVitalSignType() == Enums.VITAL_SIGN_TYPE.ALARM_LEVEL1) {
+            if (vs.getVitalSignType() == Enums.VITAL_SIGN_TYPE.ALARM_LEVEL1){
                 int op = vs.getOp();
                 String alarmLevel = vs.getValue();
                 for (VitalSign alarmvs : vitalSigns) {
