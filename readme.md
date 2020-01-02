@@ -4,7 +4,7 @@ The UKW Server Application extracts and digitalises alphanumeric characters from
 
 The application uses Maven to resolve dependencies. The OCR and image processing library used to extract the vital signs is [JavaCV](https://github.com/bytedeco/javacv).
 
-# Overview of the program structure
+The program is configured via two files.
 
 ## applicationConfig.txt
 This files contains the general config of the application. In the first block, paths have to be defined. For the application to work properly, folders with the names 'extracted', 'charts', 'validation', 'output', and 'debug' have to be created in the root folder of the application.
