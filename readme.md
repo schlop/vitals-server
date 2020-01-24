@@ -27,3 +27,9 @@ This file contains information about the position and name of vital signs. The f
   </op>
 </hospital>
 ```
+
+## TODO
+- extend the configuration file, so that the whole application can be controlled from there (e.g. path to xml file)
+- extend the xml so that it contains all the screen specific information (e.g. dimensions of the vital signs; colour of the alarms)
+- generate folder if there is none at the specified location
+- extract dimensions of the whole image automatically

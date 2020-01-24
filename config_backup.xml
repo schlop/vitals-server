@@ -1,0 +1,231 @@
+<?xml version="1.0"?>
+<hospital>
+	<op number = "0">
+		<vitalsign category="HF">
+			<postionx>407</postionx>
+			<postiony>104</postiony>
+		</vitalsign>
+		<vitalsign category="SPO2">
+			<postionx>407</postionx>
+			<postiony>164</postiony>
+		</vitalsign>
+		<vitalsign category="NBP">
+			<postionx>517</postionx>
+			<postiony>121</postiony>
+		</vitalsign>
+		<vitalsign category="ABP">
+			<postionx>544</postionx>
+			<postiony>156</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM1">
+			<postionx>230</postionx>
+			<postiony>40</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM_LEVEL1">
+			<postionx>230</postionx>
+			<postiony>40</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM2">
+			<postionx>449</postionx>
+			<postiony>40</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM_LEVEL2">
+			<postionx>449</postionx>
+			<postiony>40</postiony>
+		</vitalsign>
+        <vitalsign category="CHART">
+            <postionx>50</postionx>
+            <postiony>87</postiony>
+        </vitalsign>
+	</op>
+	<op number = "1">
+		<vitalsign category="HF">
+			<postionx>407</postionx>
+			<postiony>278</postiony>
+		</vitalsign>
+		<vitalsign category="SPO2">
+			<postionx>407</postionx>
+			<postiony>338</postiony>
+		</vitalsign>
+		<vitalsign category="NBP">
+			<postionx>517</postionx>
+			<postiony>295</postiony>
+		</vitalsign>
+		<vitalsign category="ABP">
+			<postionx>544</postionx>
+			<postiony>330</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM1">
+			<postionx>230</postionx>
+			<postiony>214</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM_LEVEL1">
+			<postionx>230</postionx>
+			<postiony>214</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM2">
+			<postionx>449</postionx>
+			<postiony>214</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM_LEVEL2">
+			<postionx>449</postionx>
+			<postiony>214</postiony>
+		</vitalsign>
+        <vitalsign category="CHART">
+            <postionx>50</postionx>
+            <postiony>261</postiony>
+        </vitalsign>
+	</op>
+	<op number = "2">
+		<vitalsign category="HF">
+			<postionx>407</postionx>
+			<postiony>452</postiony>
+		</vitalsign>
+		<vitalsign category="SPO2">
+			<postionx>407</postionx>
+			<postiony>512</postiony>
+		</vitalsign>
+		<vitalsign category="NBP">
+			<postionx>517</postionx>
+			<postiony>469</postiony>
+		</vitalsign>
+		<vitalsign category="ABP">
+			<postionx>544</postionx>
+			<postiony>504</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM1">
+			<postionx>230</postionx>
+			<postiony>388</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM_LEVEL1">
+			<postionx>230</postionx>
+			<postiony>388</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM2">
+			<postionx>449</postionx>
+			<postiony>388</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM_LEVEL2">
+			<postionx>449</postionx>
+			<postiony>388</postiony>
+		</vitalsign>
+        <vitalsign category="CHART">
+            <postionx>50</postionx>
+            <postiony>435</postiony>
+        </vitalsign>
+	</op>
+	<op number = "3">
+		<vitalsign category="HF">
+			<postionx>407</postionx>
+			<postiony>626</postiony>
+		</vitalsign>
+		<vitalsign category="SPO2">
+			<postionx>407</postionx>
+			<postiony>686</postiony>
+		</vitalsign>
+		<vitalsign category="NBP">
+			<postionx>517</postionx>
+			<postiony>643</postiony>
+		</vitalsign>
+		<vitalsign category="ABP">
+			<postionx>544</postionx>
+			<postiony>678</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM1">
+			<postionx>230</postionx>
+			<postiony>562</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM_LEVEL1">
+			<postionx>230</postionx>
+			<postiony>562</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM2">
+			<postionx>449</postionx>
+			<postiony>562</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM_LEVEL2">
+			<postionx>449</postionx>
+			<postiony>562</postiony>
+		</vitalsign>
+        <vitalsign category="CHART">
+            <postionx>50</postionx>
+            <postiony>609</postiony>
+        </vitalsign>
+	</op>
+	<op number = "4">
+		<vitalsign category="HF">
+			<postionx>407</postionx>
+			<postiony>800</postiony>
+		</vitalsign>
+		<vitalsign category="SPO2">
+			<postionx>407</postionx>
+			<postiony>860</postiony>
+		</vitalsign>
+		<vitalsign category="NBP">
+			<postionx>517</postionx>
+			<postiony>817</postiony>
+		</vitalsign>
+		<vitalsign category="ABP">
+			<postionx>544</postionx>
+			<postiony>852</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM1">
+			<postionx>230</postionx>
+			<postiony>736</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM_LEVEL1">
+			<postionx>230</postionx>
+			<postiony>736</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM2">
+			<postionx>449</postionx>
+			<postiony>736</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM_LEVEL2">
+			<postionx>449</postionx>
+			<postiony>736</postiony>
+		</vitalsign>
+        <vitalsign category="CHART">
+            <postionx>50</postionx>
+            <postiony>783</postiony>
+        </vitalsign>
+	</op>
+	<op number = "5">
+		<vitalsign category="HF">
+			<postionx>407</postionx>
+			<postiony>974</postiony>
+		</vitalsign>
+		<vitalsign category="SPO2">
+			<postionx>407</postionx>
+			<postiony>1034</postiony>
+		</vitalsign>
+		<vitalsign category="NBP">
+			<postionx>517</postionx>
+			<postiony>991</postiony>
+		</vitalsign>
+		<vitalsign category="ABP">
+			<postionx>544</postionx>
+			<postiony>1026</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM1">
+			<postionx>230</postionx>
+			<postiony>910</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM_LEVEL1">
+			<postionx>230</postionx>
+			<postiony>910</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM2">
+			<postionx>449</postionx>
+			<postiony>910</postiony>
+		</vitalsign>
+		<vitalsign category="ALARM_LEVEL2">
+			<postionx>449</postionx>
+			<postiony>910</postiony>
+		</vitalsign>
+        <vitalsign category="CHART">
+            <postionx>50</postionx>
+            <postiony>957</postiony>
+        </vitalsign>
+	</op>
+	</hospital>

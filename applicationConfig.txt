@@ -2,7 +2,7 @@ extractedImagePath = extracted
 extractedChartPath = charts
 extractedValidationPath = validation
 csvOutputPath = output
-sampleImagePath = debug/blank.png
+sampleImagePath = debug/example1.png
 httpsCertPath = mycert.keystore
 
 validationEnabled = false
@@ -14,9 +14,7 @@ auth = true
 
 captureDeviceNumber = 1
 captureInterval = 2000
-captureImageWidth = 1920
-captureImageHeight = 1080
+captureImageWidth = 655
+captureImageHeight = 468
 
 port = 9555
-
-
