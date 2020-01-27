@@ -82,9 +82,11 @@ public class TestServer {
         }
 
         public void handle(HttpExchange he) throws IOException {
-            //System.out.println("[HTTP SERVER] Handled http-get request");
+            System.out.println("[HTTP SERVER] Handled http-get request");
             byte[] jsonBytes = jsonString.getBytes();
-            Headers h = he.getResponseHeaders();
+            HttpsExchange httpsExchange = (HttpsExchange) he;
+            Headers h = httpsExchange.getResponseHeaders();
+            h.add("Access-Control-Allow-Origin", "*");
             h.add("Content-Type", "application/json");
             he.sendResponseHeaders(200, jsonBytes.length);
             OutputStream os = he.getResponseBody();
