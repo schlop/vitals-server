@@ -7,6 +7,7 @@ import org.bytedeco.javacpp.opencv_imgproc.CvFont;
 import org.bytedeco.javacpp.opencv_objdetect;
 import org.bytedeco.javacv.FrameGrabber;
 import org.bytedeco.javacv.OpenCVFrameConverter;
+import org.bytedeco.javacv.OpenCVFrameGrabber;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -45,8 +46,16 @@ public class ScreenCaptureController {
         grabber.setImageHeight(Integer.parseInt(Config.getInstance().getProp("captureImageHeight")));
         grabber.start();
         grabbedImage = converter.convert(grabber.grab());
-        System.out.println(grabbedImage.width());
-        System.out.println(grabbedImage.height());
+//        System.out.println(grabbedImage.width());
+//        System.out.println(grabbedImage.height());
+    }
+
+    private void setupVideoCapture() throws Exception {
+        grabber = new OpenCVFrameGrabber(Config.getInstance().getProp("sampleImagePath"));
+        grabber.start();
+        grabbedImage = converter.convert(grabber.grab());
+//        System.out.println(grabbedImage.width());
+//        System.out.println(grabbedImage.height());
     }
 
     public ScreenCaptureController(MainController mainController) {
@@ -56,14 +65,21 @@ public class ScreenCaptureController {
 
         //initialize screen capture
         converter = new OpenCVFrameConverter.ToIplImage();
-        if (!Config.getInstance().getProp("debugEnabled").equals("true")) {
+        if (!Config.getInstance().getProp("debugEnabled").equals("photo")) {
             while (true) {
                 try {
-                    setupScreenCapture();
-                    System.out.println("Established Screen Capture");
-                    break;
+                    if (Config.getInstance().getProp("debugEnabled").equals("video")){
+                        setupVideoCapture();
+//                        System.out.println("Established Video Capture");
+                        break;
+                    }
+                    else{
+                        setupScreenCapture();
+//                        System.out.println("Established Screen Capture");
+                        break;
+                    }
                 } catch (Exception e) {
-                    System.out.println("Could no establish Screen Capture");
+                    System.out.println("[SCREEN CAPTURE] Could no establish Screen Capture");
                     e.printStackTrace();
                     try {
                         Thread.sleep(20000);
@@ -151,11 +167,23 @@ public class ScreenCaptureController {
         Thread thread = new Thread() {
             public void run() {
                 while (true) {
-                    if (!Config.getInstance().getProp("debugEnabled").equals("true")) {
+                    if (!Config.getInstance().getProp("debugEnabled").equals("photo")) {
                         try {
                             grabber.grab();
                         } catch (FrameGrabber.Exception e) {
                             e.printStackTrace();
+                        }
+                    }
+                    //TODO: Dirty hack to loop. Needs some work
+                    if (Config.getInstance().getProp("debugEnabled").equals("video")){
+                        if (grabber.getFrameNumber() > 650){
+                            try {
+                                grabber.setTimestamp(0);
+                                System.out.println("[SCREEN CAPTURE] Restarted video");
+
+                            } catch (FrameGrabber.Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                     long start = System.currentTimeMillis();
@@ -175,6 +203,7 @@ public class ScreenCaptureController {
                     image.release();
                     long duration = System.currentTimeMillis() - start;
                     System.out.println("[SCREEN CAPTURE] Analyzed vital signs in " + duration + " ms");
+//                    System.out.println(grabber.getFrameNumber());
                 }
             }
         };

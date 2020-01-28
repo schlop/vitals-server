@@ -28,21 +28,21 @@ public class Enums {
     public enum VITAL_SIGN_TYPE {
         HF, SPO2, NBP, ABP, ALARM1, ALARM_LEVEL1, ALARM2, ALARM_LEVEL2, CHART;
 
-        private int hfx = 68;
-        private int spo2x = 51;
-        private int nbpx = 91;
+        private int hfx = 258;
+        private int spo2x = 258;
+        private int nbpx = 239;
         private int abpx = 66;
         private int alarm1x = 175;
         private int alarm2x = 175;
-        private int chartx = 310;
+        private int chartx = 1407;
 
-        private int hfy = 58;
-        private int spo2y = 46;
-        private int nbpy = 39;
+        private int hfy = 118;
+        private int spo2y = 116;
+        private int nbpy = 138;
         private int abpy = 51;
         private int alarm1y = 22;
         private int alarm2y = 22;
-        private int charty = 121;
+        private int charty = 424;
 
         private String hf_allowed = "0123456789-?";
         private String spo2_allowed = "0123456789-?";

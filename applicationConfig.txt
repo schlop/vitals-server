@@ -2,11 +2,11 @@ extractedImagePath = extracted
 extractedChartPath = charts
 extractedValidationPath = validation
 csvOutputPath = output
-sampleImagePath = debug/example1.png
+sampleImagePath = debug/simmanvitals.mp4
 httpsCertPath = mycert.keystore
 
 validationEnabled = false
-debugEnabled = true
+debugEnabled = video
 httpsEnabled = true
 consoleOutputEnabled = true
 
@@ -14,7 +14,7 @@ auth = true
 
 captureDeviceNumber = 1
 captureInterval = 2000
-captureImageWidth = 655
-captureImageHeight = 468
+captureImageWidth = 1920
+captureImageHeight = 1080
 
 port = 9555

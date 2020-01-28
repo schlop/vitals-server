@@ -2,16 +2,20 @@
 <hospital>
 	<op number = "0">
 		<vitalsign category="HF">
-			<postionx>542</postionx>
-			<postiony>23</postiony>
+			<postionx>1492</postionx>
+			<postiony>21</postiony>
 		</vitalsign>
 		<vitalsign category="SPO2">
-			<postionx>545</postionx>
-			<postiony>178</postiony>
+			<postionx>1492</postionx>
+			<postiony>170</postiony>
 		</vitalsign>
 		<vitalsign category="NBP">
-			<postionx>536</postionx>
-			<postiony>93</postiony>
+			<postionx>1511</postionx>
+			<postiony>303</postiony>
+		</vitalsign>
+		<vitalsign category="CHART">
+			<postionx>20</postionx>
+			<postiony>0</postiony>
 		</vitalsign>
 	</op>
 </hospital>

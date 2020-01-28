@@ -82,7 +82,7 @@ public class TestServer {
         }
 
         public void handle(HttpExchange he) throws IOException {
-            System.out.println("[HTTP SERVER] Handled http-get request");
+//            System.out.println("[HTTP SERVER] Handled http-get request");
             byte[] jsonBytes = jsonString.getBytes();
             HttpsExchange httpsExchange = (HttpsExchange) he;
             Headers h = httpsExchange.getResponseHeaders();

@@ -62,7 +62,13 @@ public class VitalSignAnalyzer {
             ocr.SetImage(input);
             outText = ocr.GetUTF8Text();
             String output = outText.getString();
-            output = output.replace("\n", "").replace("\r", "");
+            output = output.replace("\n", "").replace("\r", "").replace(" ", "");
+            //TODO: Nasty hack. Remove this for production.
+            if (vitalSign.getVitalSignType() == Enums.VITAL_SIGN_TYPE.NBP){
+                char hack[] = output.toCharArray();
+                hack[3] = '/';
+                output = String.valueOf(hack);
+            }
             if(!vitalSign.getVitalSignType().equals(Enums.VITAL_SIGN_TYPE.ALARM1) &&
                     !vitalSign.getVitalSignType().equals(Enums.VITAL_SIGN_TYPE.ALARM2)){
                 output = output.replace(" ", "");
@@ -128,7 +134,7 @@ public class VitalSignAnalyzer {
         cvCvtColor(image, coloredImage, CV_BGR2GRAY);
 
         //upscale
-        IplImage resizedImage = IplImage.create(width * 2, height * 2, coloredImage.depth(), coloredImage.nChannels());
+        IplImage resizedImage = IplImage.create((int) (width * 1), (int) (height * 1), coloredImage.depth(), coloredImage.nChannels());
         cvResize(coloredImage, resizedImage);
 
         //otsu
