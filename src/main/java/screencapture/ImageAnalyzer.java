@@ -12,29 +12,32 @@ import static org.bytedeco.javacpp.opencv_imgcodecs.cvSaveImage;
  * No OCR is required
  *
  */
-public class ChartAnalyzer {
-    int posx;
-    int posy;
-    int op;
+public class ImageAnalyzer extends  Analyzer{
+    private int position_x;
+    private int position_y;
+    private int size_x;
+    private int size_y;
 
-    public ChartAnalyzer(int posXInt, int posYInt, int op) {
-        posx = posXInt;
-        posy = posYInt;
-        this.op = op;
+    public ImageAnalyzer(String name, int position_x, int position_y, int size_x, int size_y) {
+        super(name);
+        this.position_x = position_x;
+        this.position_y = position_y;
+        this.size_x = size_x;
+        this.size_y = size_y;
     }
 
     public void processImage(IplImage image) {
         IplImage copiedImage = image.clone();
         opencv_core.CvRect cropBox = new opencv_core.CvRect();
-        cropBox.x(posx);
-        cropBox.y(posy);
-        cropBox.width(Enums.VITAL_SIGN_TYPE.CHART.getWidth());
-        cropBox.height(Enums.VITAL_SIGN_TYPE.CHART.getHeight());
+        cropBox.x(position_x);
+        cropBox.y(position_y);
+        cropBox.width(size_x);
+        cropBox.height(size_y);
         cvSetImageROI(copiedImage, cropBox);
         IplImage croppedImage = copiedImage.clone();
         cvCopy(copiedImage, croppedImage);
 
-        String path = Config.getInstance().getProp("extractedChartPath") + "/" + op + ".png";
+        String path = Config.getInstance().getProp("extractedChartPath") + "/" + getName() + ".png";
         cvSaveImage(path, croppedImage);
         croppedImage.release();
         copiedImage.release();

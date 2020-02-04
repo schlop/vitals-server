@@ -35,9 +35,7 @@ public class ScreenCaptureController {
     private FrameGrabber grabber;
     private OpenCVFrameConverter.ToIplImage converter;
 
-    private ArrayList<VitalSignAnalyzer> vitalSignAnalyzers;
-    private ArrayList<ChartAnalyzer> chartAnalyzers;
-
+    private ArrayList<Analyzer> analyzerList;
     private MainController mainController;
 
     private void setupScreenCapture() throws Exception {
@@ -46,16 +44,12 @@ public class ScreenCaptureController {
         grabber.setImageHeight(Integer.parseInt(Config.getInstance().getProp("captureImageHeight")));
         grabber.start();
         grabbedImage = converter.convert(grabber.grab());
-//        System.out.println(grabbedImage.width());
-//        System.out.println(grabbedImage.height());
     }
 
     private void setupVideoCapture() throws Exception {
         grabber = new OpenCVFrameGrabber(Config.getInstance().getProp("sampleImagePath"));
         grabber.start();
         grabbedImage = converter.convert(grabber.grab());
-//        System.out.println(grabbedImage.width());
-//        System.out.println(grabbedImage.height());
     }
 
     public ScreenCaptureController(MainController mainController) {
@@ -68,12 +62,11 @@ public class ScreenCaptureController {
         if (!Config.getInstance().getProp("debugEnabled").equals("photo")) {
             while (true) {
                 try {
-                    if (Config.getInstance().getProp("debugEnabled").equals("video")){
+                    if (Config.getInstance().getProp("debugEnabled").equals("video")) {
                         setupVideoCapture();
 //                        System.out.println("Established Video Capture");
                         break;
-                    }
-                    else{
+                    } else {
                         setupScreenCapture();
 //                        System.out.println("Established Screen Capture");
                         break;
@@ -96,70 +89,149 @@ public class ScreenCaptureController {
 
 
         //read config xml and create vital sign analyzer for each field
-        chartAnalyzers = new ArrayList<ChartAnalyzer>();
-        vitalSignAnalyzers = new ArrayList<VitalSignAnalyzer>();
+        analyzerList = new ArrayList<Analyzer>();
         try {
-            File xml = new File("config.xml");
+            File xml = new File(Config.getInstance().getProp("analyzerConfig"));
             DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document doc = dBuilder.parse(xml);
             doc.getDocumentElement().normalize();
 
-            NodeList ops = doc.getElementsByTagName("op");
-            for (int i = 0; i < ops.getLength(); i++) {
-                Node op = ops.item(i);
-                int opLabel = Integer.parseInt(op.getAttributes().item(0).getNodeValue());
-                NodeList vitalSigns = op.getChildNodes();
-                for (int j = 0; j < vitalSigns.getLength(); j++) {
-                    Node vitalSign = vitalSigns.item(j);
-                    if (vitalSign.getNodeType() == Node.ELEMENT_NODE) {
-                        NodeList cords = vitalSign.getChildNodes();
-                        Enums.VITAL_SIGN_TYPE vitalSignEnum = Enums.VITAL_SIGN_TYPE.valueOf(vitalSign.getAttributes().item(0).getNodeValue());
-                        int posXInt = 0;
-                        int posYInt = 0;
+            NodeList analyserNodeList = doc.getElementsByTagName("definition").item(0).getChildNodes();
+            for (int i = 0; i < analyserNodeList.getLength(); i++) {
+                String analyzerType = null;
+                String name = null;
+                String allowedChars = null;
+                Boolean log = null;
+                Boolean publish = null;
+                Integer position_x = null;
+                Integer position_y = null;
+                Integer size_x = null;
+                Integer size_y = null;
+                ArrayList<Tuple<String, String>> dependencyStrings = new ArrayList<Tuple<String, String>>();
+                ArrayList<Tuple<String, int[]>> translations = new ArrayList<Tuple<String, int[]>>();
 
-                        for (int k = 0; k < cords.getLength(); k++) {
-                            Node cord = cords.item(k);
-                            if (cord.getNodeType() == Node.ELEMENT_NODE) {
-                                if (posXInt == 0) posXInt = Integer.parseInt(cord.getFirstChild().getNodeValue());
-                                else posYInt = Integer.parseInt(cord.getFirstChild().getNodeValue());
+                Node analyserNode = analyserNodeList.item(i);
+                analyzerType = analyserNode.getNodeName();
+                name = analyserNode.getAttributes().item(0).getNodeValue();
+                NodeList analyserAttributeList = analyserNode.getChildNodes();
+                for (int j = 0; j < analyserAttributeList.getLength(); j++) {
+                    Node attribute = analyserAttributeList.item(j);
+                    switch (attribute.getNodeName()) {
+                        case "log":
+                            log = Boolean.parseBoolean(attribute.getFirstChild().getNodeValue());
+                            break;
+                        case "publish":
+                            publish = Boolean.parseBoolean(attribute.getFirstChild().getNodeValue());
+                            break;
+                        case "chars":
+                            allowedChars = attribute.getFirstChild().getNodeValue();
+                            break;
+                        case "dimensions":
+                            NodeList positionAttributeList = attribute.getChildNodes();
+                            for (int k = 0; k < positionAttributeList.getLength(); k++) {
+                                Node positionAttribute = positionAttributeList.item(k);
+                                if (positionAttribute.getNodeName() == "position_x")
+                                    position_x = Integer.parseInt(positionAttribute.getFirstChild().getNodeValue());
+                                else if (positionAttributeList.item(k).getNodeName() == "position_y")
+                                    position_y = Integer.parseInt(positionAttribute.getFirstChild().getNodeValue());
+                                else if (positionAttributeList.item(k).getNodeName() == "size_x")
+                                    size_x = Integer.parseInt(positionAttribute.getFirstChild().getNodeValue());
+                                else if (positionAttributeList.item(k).getNodeName() == "size_y")
+                                    size_y = Integer.parseInt(positionAttribute.getFirstChild().getNodeValue());
                             }
-                        }
-                        if (vitalSignEnum != Enums.VITAL_SIGN_TYPE.CHART) {
-                            VitalSign vs = new VitalSign(vitalSignEnum, opLabel);
-                            VitalSignAnalyzer vsa = new VitalSignAnalyzer(vs, posXInt, posYInt);
-                            vitalSignAnalyzers.add(vsa);
-                        } else {
-                            ChartAnalyzer ca = new ChartAnalyzer(posXInt, posYInt, opLabel);
-                            chartAnalyzers.add(ca);
-                        }
+                            break;
+                        case "dependencies":
+                            NodeList dependenciesList = attribute.getChildNodes();
+                            for (int k = 0; k < dependenciesList.getLength(); k++) {
+                                NodeList conditionsList = dependenciesList.item(k).getChildNodes();
+                                String[] dependency = new String[2];
+                                for (int l = 0; l < conditionsList.getLength(); l++) {
+                                    Node conditionAttribute = conditionsList.item(l);
+                                    if (conditionAttribute.getNodeName() == "analyser")
+                                        dependency[0] = conditionAttribute.getFirstChild().getNodeValue();
+                                    else if (conditionAttribute.getNodeName() == "value")
+                                        dependency[1] = conditionAttribute.getFirstChild().getNodeValue();
+                                }
+                                dependencyStrings.add(new Tuple(dependency[0], dependency[1]));
+                            }
+                            break;
+                        case "translations":
+                            NodeList colorAttributeList = attribute.getChildNodes();
+                            for (int k = 0; k < colorAttributeList.getLength(); k++) {
+                                String keyword = colorAttributeList.item(k).getAttributes().item(0).getNodeValue();
+                                int[] rgb = new int[3];
+                                NodeList rgbAttributeList = colorAttributeList.item(k).getChildNodes();
+                                for (int l = 0; l < rgbAttributeList.getLength(); l++) {
+                                    Node rgbAttribute = rgbAttributeList.item(l);
+                                    if (rgbAttribute.getNodeName() == "r") {
+                                        rgb[0] = Integer.parseInt(rgbAttribute.getFirstChild().getNodeValue());
+                                    } else if (rgbAttribute.getNodeName() == "g") {
+                                        rgb[1] = Integer.parseInt(rgbAttribute.getFirstChild().getNodeValue());
+                                    } else if (rgbAttribute.getNodeName() == "b") {
+                                        rgb[2] = Integer.parseInt(rgbAttribute.getFirstChild().getNodeValue());
+                                    }
+                                }
+                                Tuple<String, int[]> translation = new Tuple<String, int[]>(keyword, rgb);
+                                translations.add(translation);
+                            }
+                            break;
+                        default:
+                            throw new IllegalArgumentException("Unknown field: " + attribute.getNodeName());
                     }
+                }
+                switch (analyzerType){
+                    case "textAnalyser":
+                        if (name != null &&
+                                log != null &&
+                                publish != null &&
+                                allowedChars != null &&
+                                position_x != null &&
+                                position_y != null &&
+                                size_x != null &&
+                                size_y != null){
+                            TextAnalyzer textAnalyzer = new TextAnalyzer(name, log, publish, allowedChars, position_x, position_y, size_x, size_y, dependencyStrings);
+                            analyzerList.add(textAnalyzer);
+                        }
+                        break;
+                    case "colorAnalyser":
+                        if (name != null &&
+                                log != null &&
+                                publish != null &&
+                                position_x != null &&
+                                position_y != null &&
+                                translations.size() != 0) {
+                            ColorAnalyzer colorAnalyzer = new ColorAnalyzer(name, log, publish, position_x, position_y, translations, dependencyStrings);
+                            analyzerList.add(colorAnalyzer);
+                        }
+                        break;
+                    case "imageAnalyser":
+                        if (name != null &&
+                                position_x != null &&
+                                position_y != null &&
+                                size_x != null &&
+                                size_y != null){
+                            ImageAnalyzer imageAnalyzer = new ImageAnalyzer(name, position_x, position_y, size_x, size_y);
+                            analyzerList.add(imageAnalyzer);
+                        }
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Unknown analyzer: " + analyzerType);
                 }
             }
         } catch (Exception e) {
             System.out.println("Error during XML parsing");
             e.printStackTrace();
         }
+        for (Analyzer analyzer : analyzerList){
+            for (Tuple<String, String> tuple : analyzer.getDependencyStrings()){
+                for (Analyzer compare : analyzerList){
+                    if (tuple.x.equals(compare.getName())){
+                        analyzer.setDependencies(new Tuple<Analyzer, String>(compare, tuple.y));
+                    }
+                }
+            }
+        }
         System.out.println("[SCREEN CAPTURE] Capture started");
-    }
-
-    public void run() {
-        long start = System.currentTimeMillis();
-        IplImage image = grabbedImage.clone();
-        ArrayList<VitalSign> vitalSigns = new ArrayList<VitalSign>();
-        for (VitalSignAnalyzer vsa : vitalSignAnalyzers) {
-            VitalSign vitalSign = vsa.processImage(image);
-            vitalSigns.add(vitalSign);
-        }
-        for (ChartAnalyzer ca : chartAnalyzers) {
-            ca.processImage(image);
-        }
-        mainController.vitalSignUpdate(vitalSigns);
-        if (Config.getInstance().getProp("validationEnabled").equals("true")) {
-            recordScreen(image, vitalSigns);
-        }
-        image.release();
-        long duration = System.currentTimeMillis() - start;
-        System.out.println("[SCREEN CAPTURE] Analyzed vital signs in " + duration + " ms");
     }
 
 
@@ -175,8 +247,8 @@ public class ScreenCaptureController {
                         }
                     }
                     //TODO: Dirty hack to loop. Needs some work
-                    if (Config.getInstance().getProp("debugEnabled").equals("video")){
-                        if (grabber.getFrameNumber() > 650){
+                    if (Config.getInstance().getProp("debugEnabled").equals("video")) {
+                        if (grabber.getFrameNumber() > 650) {
                             try {
                                 grabber.setTimestamp(0);
                                 System.out.println("[SCREEN CAPTURE] Restarted video");
@@ -188,42 +260,44 @@ public class ScreenCaptureController {
                     }
                     long start = System.currentTimeMillis();
                     IplImage image = grabbedImage.clone();
-                    ArrayList<VitalSign> vitalSigns = new ArrayList<VitalSign>();
-                    for (VitalSignAnalyzer vsa : vitalSignAnalyzers) {
-                        VitalSign vitalSign = vsa.processImage(image);
-                        vitalSigns.add(vitalSign);
+                    ArrayList<String> texts = new ArrayList<String>();
+                    for (Analyzer analyzer : analyzerList) {
+                        analyzer.processImage(image);
                     }
-                    for (ChartAnalyzer ca : chartAnalyzers) {
-                        ca.processImage(image);
-                    }
-                    mainController.vitalSignUpdate(vitalSigns);
+                    mainController.vitalSignUpdate();
                     if (Config.getInstance().getProp("validationEnabled").equals("true")) {
-                        recordScreen(image, vitalSigns);
+                        recordScreen(image);
                     }
                     image.release();
                     long duration = System.currentTimeMillis() - start;
-                    System.out.println("[SCREEN CAPTURE] Analyzed vital signs in " + duration + " ms");
-//                    System.out.println(grabber.getFrameNumber());
+                    System.out.println("[SCREEN CAPTURE] Analyzed image in " + duration + " ms");
                 }
             }
         };
         thread.start();
     }
 
-
-    private void recordScreen(IplImage image, List<VitalSign> vitalSigns) {
+    private void recordScreen(IplImage image) {
         IplImage copyedImage = image.clone();
         CvFont font = cvFont(1, 1);
-        for (int i = 0; i < vitalSigns.size(); i++) {
-            VitalSign vs = vitalSigns.get(i);
-            int[] pos = {vs.getPosx(), vs.getPosy()};
-            if (vs.getVitalSignType() != Enums.VITAL_SIGN_TYPE.ALARM_LEVEL1 &&
-                    vs.getVitalSignType() != Enums.VITAL_SIGN_TYPE.ALARM_LEVEL2) {
-                cvPutText(copyedImage, vs.getValue(), pos, font, opencv_core.CvScalar.WHITE);
+        for (Analyzer analyzer : analyzerList) {
+            if (analyzer instanceof TextAnalyzer) {
+                TextAnalyzer textAnalyzer = (TextAnalyzer) analyzer;
+                int[] pos = {textAnalyzer.getPositionX(), textAnalyzer.getPositionY()};
+                cvPutText(copyedImage, textAnalyzer.getValue(), pos, font, opencv_core.CvScalar.WHITE);
+            }
+            else if (analyzer instanceof ColorAnalyzer) {
+                ColorAnalyzer colorAnalyzer = (ColorAnalyzer) analyzer;
+                int[] pos = {colorAnalyzer.getPositionX(), colorAnalyzer.getPositionY()};
+                cvPutText(copyedImage, colorAnalyzer.getValue(), pos, font, opencv_core.CvScalar.WHITE);
             }
         }
         String path = Config.getInstance().getProp("extractedValidationPath") + "/" + System.currentTimeMillis() + ".png";
         cvSaveImage(path, copyedImage);
         copyedImage.release();
+    }
+
+    public ArrayList<Analyzer> getAnalyzerList() {
+        return analyzerList;
     }
 }

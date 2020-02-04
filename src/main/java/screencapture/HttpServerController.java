@@ -22,8 +22,10 @@ public class HttpServerController {
     private VitalSignHandler vitalSignHandler;
 
     private boolean running;
+    private ArrayList<Analyzer> analyzerArrayList;
 
-    public HttpServerController(MainController mainController) {
+    public HttpServerController(ArrayList<Analyzer> analyzerArrayList) {
+        this.analyzerArrayList = analyzerArrayList;
         try {
             String keystoreFilename = "mycert.keystore";
             char[] storepass = "mypassword".toCharArray();
@@ -60,16 +62,12 @@ public class HttpServerController {
             });
             mapper = new ObjectMapper();
             vitalSignHandler = new VitalSignHandler();
-            if (Config.getInstance().getProp("auth").equals("false")) {
-                httpsServer.createContext("/get", vitalSignHandler);
+            httpsServer.createContext("/" + Config.getInstance().getProp("url"), vitalSignHandler);
+            for (Analyzer analyzer : analyzerArrayList){
+                if (analyzer instanceof ImageAnalyzer){
+                    httpsServer.createContext("/" + analyzer.getName(), new ChartHandler(analyzer.getName()));
+                }
             }
-            httpsServer.createContext("/RMDdplL04YjGKTUaN", vitalSignHandler);
-            httpsServer.createContext("/qYQgIHLgW0oO2urcb", new ChartHandler(0));
-            httpsServer.createContext("/4pCZzJ3TzDIyvxPsw", new ChartHandler(1));
-            httpsServer.createContext("/0JBdsF8kJimXUXJSO", new ChartHandler(2));
-            httpsServer.createContext("/7gWjVaSMtZwuav3pX", new ChartHandler(3));
-            httpsServer.createContext("/k8tSpNlGAE5XbGtxd", new ChartHandler(4));
-            httpsServer.createContext("/C1rU6XuFVEcjCWAwT", new ChartHandler(5));
             httpsServer.setExecutor(null);
         } catch (Exception e) {
             e.printStackTrace();
@@ -89,9 +87,24 @@ public class HttpServerController {
         httpsServer.stop(0);
     }
 
-    public void publishNewVitalSigns(ArrayList<VitalSign> vitalSigns) {
+    public void publishAnalyzers() {
+        ArrayList<String> stringData = new ArrayList<String>();
+        for (Analyzer analyzer : analyzerArrayList){
+            if (analyzer instanceof TextAnalyzer){
+                TextAnalyzer textAnalyzer = (TextAnalyzer) analyzer;
+                if (textAnalyzer.isPublish()){
+                    stringData.add(textAnalyzer.toString());
+                }
+            }
+            if (analyzer instanceof ColorAnalyzer){
+                ColorAnalyzer colorAnalyzer = (ColorAnalyzer) analyzer;
+                if (colorAnalyzer.isPublish()){
+                    stringData.add(colorAnalyzer.toString());
+                }
+            }
+        }
         try {
-            String vitalSignsJSON = mapper.writeValueAsString(vitalSigns);
+            String vitalSignsJSON = mapper.writeValueAsString(stringData);
             vitalSignHandler.setVitalSignsJSON(vitalSignsJSON);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
@@ -133,10 +146,10 @@ public class HttpServerController {
 
     public class ChartHandler implements HttpHandler {
 
-        private int op;
+        private String path;
 
-        public ChartHandler(int op) {
-            this.op = op;
+        public ChartHandler(String path) {
+            this.path = path;
         }
 
         public void handle(HttpExchange he) throws IOException {
@@ -144,7 +157,7 @@ public class HttpServerController {
             Headers h = he.getResponseHeaders();
             h.add("Content-Type", "image/png");
 
-            File chartImage = new File(Config.getInstance().getProp("extractedChartPath") + "/" + op + ".png");
+            File chartImage = new File(Config.getInstance().getProp("extractedChartPath") + "/" + path + ".png");
             byte[] bytes = new byte[(int) chartImage.length()];
 
             FileInputStream fileInputStream = new FileInputStream(chartImage);

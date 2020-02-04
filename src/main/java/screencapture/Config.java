@@ -17,9 +17,7 @@ public class Config {
         prop = new Properties();
         InputStream input = null;
         try {
-
             input = new FileInputStream("applicationConfig.txt");
-
             // load a properties file
             prop.load(input);
         } catch (FileNotFoundException e) {

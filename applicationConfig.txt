@@ -1,20 +1,25 @@
+Paths to folders that store: snippets for OCR (extractedImagePath), images that are published via socket (extractedChartPaths), screenshots of analysed image with analysis results superimposed (extractedValidationPath), CSV logfile (csvOutputPath).
 extractedImagePath = extracted
 extractedChartPath = charts
 extractedValidationPath = validation
 csvOutputPath = output
+
+Paths to files that are required for the software to run: config file that defines information to be extracted (analyzerConfig), image or video of screen to be analysed for debug purposes (sampleImagePath), https certificate (httpsCertPath)
+analyzerConfig = config_version_20.xml
 sampleImagePath = debug/simmanvitals.mp4
 httpsCertPath = mycert.keystore
 
+Configuration of the software: screenshots with superimposed results (validationEnabled), read data from file instead of from capture card (debugEnabled), create CSV logfile (logEnabled), write all analysis results to console (consoleOutputEnabled)
 validationEnabled = false
 debugEnabled = video
-httpsEnabled = true
-consoleOutputEnabled = true
+logEnabled = false
+consoleOutputEnabled = false
 
-auth = true
+Configuration of the network component of the software: base URL where all extracted data is available (url), port (port); Note that extracted images are available via their filename (/filename)
+url = RMDdplL04YjGKTUaN
+port = 9555
 
+Configuration of capture device: Device number and resolution
 captureDeviceNumber = 1
-captureInterval = 2000
 captureImageWidth = 1920
 captureImageHeight = 1080
-
-port = 9555

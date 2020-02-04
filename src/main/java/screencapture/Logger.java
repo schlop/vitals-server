@@ -9,7 +9,7 @@ import java.util.Calendar;
 
 /**
  * Created by Paul on 30/10/2017.
- *
+ * <p>
  * Writes a log file. The file contains:
  * - timestamp
  * - op
@@ -19,20 +19,17 @@ import java.util.Calendar;
  */
 public class Logger {
 
-    private ArrayList<String> previousVitalSignStrings;
     private FileWriter alarmsFileWriter;
+    private ArrayList<Analyzer> analyzerArrayList;
 
-    public Logger() {
-        previousVitalSignStrings = new ArrayList<String>();
-        for (int i = 0; i < 70; i++) {
-            previousVitalSignStrings.add("");
-        }
+    public Logger(ArrayList<Analyzer> analyzerArrayList) {
+        this.analyzerArrayList = analyzerArrayList;
 
         String pattern = "ddMMMM_hhmm";
         Calendar cal = Calendar.getInstance();
         SimpleDateFormat date = new SimpleDateFormat(pattern);
         String dateString = date.format(cal.getTime());
-        String alarmsFilename = dateString + "_alarms.csv";
+        String alarmsFilename = dateString + "_log.csv";
         File csvPathAlarms = new File(Config.getInstance().getProp("csvOutputPath") + "/" + alarmsFilename);
 
         try {
@@ -42,24 +39,39 @@ public class Logger {
             e.printStackTrace();
         }
 
-        String csvHeadings = "time,op,level,message";
+        String csvHeadings = "time,analyzer,previous value,current value";
         writeToCSV(alarmsFileWriter, csvHeadings);
     }
 
-    public void logNewAlarm(int op, String alarmLevel, String alarmMessage) {
-        String alarmLevelOp = op + alarmLevel;
-        String previousVitalSign = previousVitalSignStrings.get(op);
-        if (!previousVitalSign.equals(alarmLevelOp)){
-            previousVitalSignStrings.set(op, alarmLevelOp);
-            if (alarmLevel.equals(Enums.ALARM_TYPE.WARNING.toString()) || alarmLevel.equals(Enums.ALARM_TYPE.ALARM.toString())){
-                String csvString = System.currentTimeMillis() + "," + op + "," + alarmLevel + "," + alarmMessage;
-                writeToCSV(alarmsFileWriter, csvString);
-                System.out.println("[LOGGER] Wrote status change");
+    public void logAnalyzers() {
+        for (Analyzer analyzer : analyzerArrayList) {
+            if (analyzer instanceof TextAnalyzer) {
+                TextAnalyzer textAnalyzer = (TextAnalyzer) analyzer;
+                if (textAnalyzer.isLog() && !textAnalyzer.getValue().equals(textAnalyzer.getPreviousValue())) {
+                    String csvString = System.currentTimeMillis() + "," +
+                            textAnalyzer.getName() + "," +
+                            textAnalyzer.getPreviousValue() +
+                            "," + textAnalyzer.getValue();
+                    writeToCSV(alarmsFileWriter, csvString);
+                    System.out.println("[LOGGER] Wrote status change");
+                }
+            }
+            if (analyzer instanceof ColorAnalyzer) {
+                ColorAnalyzer colorAnalyzer = (ColorAnalyzer) analyzer;
+                if (colorAnalyzer.isLog()) {
+                    if (colorAnalyzer.isLog() && !colorAnalyzer.getValue().equals(colorAnalyzer.getPreviousValue())) {
+                        String csvString = System.currentTimeMillis() + "," +
+                                colorAnalyzer.getName() + "," +
+                                colorAnalyzer.getPreviousValue() +
+                                "," + colorAnalyzer.getValue();
+                        writeToCSV(alarmsFileWriter, csvString);
+                        System.out.println("[LOGGER] Wrote status change");
+                    }
+                }
             }
         }
     }
-
-    private void writeToCSV(FileWriter fw, String str) {
+    private void writeToCSV (FileWriter fw, String str){
         String add = str + "\n";
         try {
             fw.append(add);
