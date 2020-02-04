@@ -192,6 +192,9 @@ public class ScreenCaptureController {
                             TextAnalyzer textAnalyzer = new TextAnalyzer(name, log, publish, allowedChars, position_x, position_y, size_x, size_y, dependencyStrings);
                             analyzerList.add(textAnalyzer);
                         }
+                        else{
+                            throw new IllegalArgumentException("Tried to create TextAnalyser but not all required fields were defined in XML file");
+                        }
                         break;
                     case "colorAnalyser":
                         if (name != null &&
@@ -203,6 +206,9 @@ public class ScreenCaptureController {
                             ColorAnalyzer colorAnalyzer = new ColorAnalyzer(name, log, publish, position_x, position_y, translations, dependencyStrings);
                             analyzerList.add(colorAnalyzer);
                         }
+                        else{
+                            throw new IllegalArgumentException("Tried to create ColorAnalyser but not all required fields were defined in XML file");
+                        }
                         break;
                     case "imageAnalyser":
                         if (name != null &&
@@ -212,6 +218,9 @@ public class ScreenCaptureController {
                                 size_y != null){
                             ImageAnalyzer imageAnalyzer = new ImageAnalyzer(name, position_x, position_y, size_x, size_y);
                             analyzerList.add(imageAnalyzer);
+                        }
+                        else{
+                            throw new IllegalArgumentException("Tried to create ImageAnalyser but not all required fields were defined in XML file");
                         }
                         break;
                     default:

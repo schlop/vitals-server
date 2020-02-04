@@ -19,17 +19,18 @@ This file contains information about the position and name of vital signs. The f
 
 ```xml
 <hospital>
-	<op number = "0">
+    <op number = "0">
 		<vitalsign category="HF">
 			<postionx>100</postionx>
 			<postiony>100</postiony>
 		</vitalsign>
-  </op>
+    </op>
 </hospital>
 ```
 
 ## TODO
-- extend the configuration file, so that the whole application can be controlled from there (e.g. path to xml file)
-- extend the xml so that it contains all the screen specific information (e.g. dimensions of the vital signs; colour of the alarms)
+- COMPLETED: extend the configuration file, so that the whole application can be controlled from there (e.g. path to xml file)
+- COMPLETED: extend the xml so that it contains all the screen specific information (e.g. dimensions of the vital signs; colour of the alarms)
 - generate folder if there is none at the specified location
 - extract dimensions of the whole image automatically
+- update readme file to describe the new functionality of the application
