@@ -58,7 +58,7 @@ public abstract class Analyzer {
     }
 
     public String toString(){
-        return getName() + '{' + "value=" + value + '}';
+        return "{\"name\": \"" + name + "\", \"value\": \"" + value + "\"}";
     }
     public abstract void processImage(opencv_core.IplImage image);
 }

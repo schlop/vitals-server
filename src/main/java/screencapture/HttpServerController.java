@@ -17,7 +17,7 @@ import java.util.ArrayList;
  */
 public class HttpServerController {
 
-    private HttpsServer httpsServer;
+    private HttpServer httpServer;
     private ObjectMapper mapper;
     private VitalSignHandler vitalSignHandler;
 
@@ -27,48 +27,15 @@ public class HttpServerController {
     public HttpServerController(ArrayList<Analyzer> analyzerArrayList) {
         this.analyzerArrayList = analyzerArrayList;
         try {
-            String keystoreFilename = "mycert.keystore";
-            char[] storepass = "mypassword".toCharArray();
-            char[] keypass = "mypassword".toCharArray();
-            FileInputStream fIn = new FileInputStream(keystoreFilename);
-            KeyStore keystore = KeyStore.getInstance("JKS");
-            keystore.load(fIn, storepass);
-
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
-            kmf.init(keystore, keypass);
-
-            TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
-            tmf.init(keystore);
-
-            httpsServer = HttpsServer.create(new InetSocketAddress(Integer.parseInt(Config.getInstance().getProp("port"))), 0);
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
-
-            httpsServer.setHttpsConfigurator(new HttpsConfigurator(sslContext) {
-                public void configure(HttpsParameters params) {
-                    try {
-                        SSLContext c = SSLContext.getDefault();
-                        SSLEngine engine = c.createSSLEngine();
-                        params.setNeedClientAuth(false);
-                        params.setCipherSuites(engine.getEnabledCipherSuites());
-                        params.setProtocols(engine.getEnabledProtocols());
-                        SSLParameters defaultSSLParameters = c.getDefaultSSLParameters();
-                        params.setSSLParameters(defaultSSLParameters);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                        System.out.println("Failed to create HTTPS server");
-                    }
-                }
-            });
-            mapper = new ObjectMapper();
+            httpServer = HttpServer.create(new InetSocketAddress(9555), 0);
             vitalSignHandler = new VitalSignHandler();
-            httpsServer.createContext("/" + Config.getInstance().getProp("url"), vitalSignHandler);
+            httpServer.createContext("/" + Config.getInstance().getProp("url"), vitalSignHandler);
             for (Analyzer analyzer : analyzerArrayList){
                 if (analyzer instanceof ImageAnalyzer){
-                    httpsServer.createContext("/" + analyzer.getName(), new ChartHandler(analyzer.getName()));
+                    httpServer.createContext("/" + analyzer.getName(), new ChartHandler(analyzer.getName()));
                 }
             }
-            httpsServer.setExecutor(null);
+            httpServer.setExecutor(null);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -78,37 +45,33 @@ public class HttpServerController {
 
     public void start() {
         running = true;
-        httpsServer.start();
-        System.out.println("[HTTPS SERVER] Server started");
+        httpServer.start();
+        System.out.println("[HTTP SERVER] Server started");
     }
 
     public void stop() {
         running = false;
-        httpsServer.stop(0);
+        httpServer.stop(0);
     }
 
     public void publishAnalyzers() {
-        ArrayList<String> stringData = new ArrayList<String>();
+        String vitalSignsJSON = "";
         for (Analyzer analyzer : analyzerArrayList){
             if (analyzer instanceof TextAnalyzer){
                 TextAnalyzer textAnalyzer = (TextAnalyzer) analyzer;
                 if (textAnalyzer.isPublish()){
-                    stringData.add(textAnalyzer.toString());
+                    vitalSignsJSON += (textAnalyzer.toString() + ',');
                 }
             }
             if (analyzer instanceof ColorAnalyzer){
                 ColorAnalyzer colorAnalyzer = (ColorAnalyzer) analyzer;
                 if (colorAnalyzer.isPublish()){
-                    stringData.add(colorAnalyzer.toString());
+                    vitalSignsJSON += (colorAnalyzer.toString() + ',');
                 }
             }
         }
-        try {
-            String vitalSignsJSON = mapper.writeValueAsString(stringData);
-            vitalSignHandler.setVitalSignsJSON(vitalSignsJSON);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+        vitalSignsJSON = '[' + vitalSignsJSON.substring(0, vitalSignsJSON.length() - 1) + ']';
+        vitalSignHandler.setVitalSignsJSON(vitalSignsJSON);
     }
 
     public boolean isRunning() {
@@ -132,14 +95,9 @@ public class HttpServerController {
 
         public void handle(HttpExchange he) throws IOException {
             System.out.println("[HTTP SERVER] Handled http-get request");
-            byte[] jsonBytes = vitalSignsJSON.getBytes();
-            HttpsExchange httpsExchange = (HttpsExchange) he;
-            Headers h = httpsExchange.getResponseHeaders();
-            h.add("Access-Control-Allow-Origin", "*");
-            h.add("Content-Type", "application/json");
-            he.sendResponseHeaders(200, jsonBytes.length);
+            he.sendResponseHeaders(200, vitalSignsJSON.length());
             OutputStream os = he.getResponseBody();
-            os.write(jsonBytes);
+            os.write(vitalSignsJSON.getBytes());
             os.close();
         }
     }
@@ -153,7 +111,7 @@ public class HttpServerController {
         }
 
         public void handle(HttpExchange he) throws IOException {
-            System.out.println("[HTTPS SERVER] Handled http-get request");
+            System.out.println("[HTTP SERVER] Handled http-get request");
             Headers h = he.getResponseHeaders();
             h.add("Content-Type", "image/png");
 
