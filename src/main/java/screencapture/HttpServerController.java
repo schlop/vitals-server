@@ -3,12 +3,22 @@ package screencapture;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+import sun.lwawt.macosx.CPrinterDevice;
 
 import javax.net.ssl.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.security.*;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Created by Paul on 29/10/2017.
@@ -18,8 +28,8 @@ import java.util.ArrayList;
 public class HttpServerController {
 
     private HttpServer httpServer;
-    private ObjectMapper mapper;
     private VitalSignHandler vitalSignHandler;
+
 
     private boolean running;
     private ArrayList<Analyzer> analyzerArrayList;
@@ -35,13 +45,14 @@ public class HttpServerController {
                     httpServer.createContext("/" + analyzer.getName(), new ChartHandler(analyzer.getName()));
                 }
             }
+            if (!Config.getInstance().getProp("urlExtra").equals("false")){
+                httpServer.createContext("/" + Config.getInstance().getProp("urlExtra"), new StaticDataHandler(Config.getInstance().getProp("extraConfig")));
+            }
             httpServer.setExecutor(null);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
-
 
     public void start() {
         running = true;
@@ -105,7 +116,6 @@ public class HttpServerController {
     public class ChartHandler implements HttpHandler {
 
         private String path;
-
         public ChartHandler(String path) {
             this.path = path;
         }
@@ -126,6 +136,55 @@ public class HttpServerController {
             OutputStream outputStream = he.getResponseBody();
             outputStream.write(bytes, 0, bytes.length);
             outputStream.close();
+        }
+    }
+
+    public class StaticDataHandler implements HttpHandler{
+        private long startTime;
+        private TreeMap<Integer, String> jsonDataElements;
+
+        public  StaticDataHandler(String path){
+            startTime = System.currentTimeMillis();
+            jsonDataElements = new TreeMap<Integer, String>();
+
+            try {
+                File xml = new File(path);
+                DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                Document doc = dBuilder.parse(xml);
+                doc.getDocumentElement().normalize();
+
+                NodeList jsonElement = doc.getElementsByTagName("definition").item(0).getChildNodes();
+                for (int i = 0; i < jsonElement.getLength(); i++) {
+                    Node analyserNode = jsonElement.item(i);
+                    NodeList jsonAttributeList = analyserNode.getChildNodes();
+                    Integer time = Integer.parseInt(jsonAttributeList.item(0).getFirstChild().getNodeValue());
+                    String content = jsonAttributeList.item(1).getFirstChild().getNodeValue();
+                    jsonDataElements.put(time, content);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        /**
+         * Serve the extra that is currently active, delete the old extra from the map when a new one is active
+         * @param he
+         * @throws IOException
+         */
+        public void handle(HttpExchange he) throws IOException {
+            for (Map.Entry<Integer, String> entry : jsonDataElements.entrySet()) {
+                if (System.currentTimeMillis() > startTime + entry.getKey()){
+                    jsonDataElements.remove(entry.getKey());
+                }
+                else {
+                    System.out.println("[HTTP SERVER] Handled http-get request");
+                    he.sendResponseHeaders(200, entry.getValue().length());
+                    OutputStream os = he.getResponseBody();
+                    os.write(entry.getValue().getBytes());
+                    os.close();
+                    break;
+                }
+            }
         }
     }
 }

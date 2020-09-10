@@ -23,4 +23,7 @@ Configuration of capture device: Device number and resolution
 captureDeviceNumber = 0
 captureImageWidth = 1366
 captureImageHeight = 768
-´
+
+Configuration of extra data: file that contains static JSON data
+urlExtra = test
+extraConfig = test_extra.xml
