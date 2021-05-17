@@ -19,12 +19,12 @@ This file contains information about the position and name of vital signs. The f
 
 ```xml
 <hospital>
-    <op number = "0">
-		<vitalsign category="HF">
-			<postionx>100</postionx>
-			<postiony>100</postiony>
-		</vitalsign>
-    </op>
+  <op number = "0">
+    <vitalsign category="HF">
+      <postionx>100</postionx>
+      <postiony>100</postiony>
+    </vitalsign>
+  </op>
 </hospital>
 ```
 
