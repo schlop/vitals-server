@@ -18,8 +18,8 @@ public class ImageAnalyzer extends  Analyzer{
     private int size_x;
     private int size_y;
 
-    public ImageAnalyzer(String name, int position_x, int position_y, int size_x, int size_y) {
-        super(name);
+    public ImageAnalyzer(String name, Logger logger, Communicator communicator, int position_x, int position_y, int size_x, int size_y) {
+        super(name, logger, communicator);
         this.position_x = position_x;
         this.position_y = position_y;
         this.size_x = size_x;
@@ -36,9 +36,9 @@ public class ImageAnalyzer extends  Analyzer{
         cvSetImageROI(copiedImage, cropBox);
         IplImage croppedImage = copiedImage.clone();
         cvCopy(copiedImage, croppedImage);
-
-        String path = Config.getInstance().getProp("extractedChartPath") + "/" + getName() + ".png";
-        cvSaveImage(path, croppedImage);
+        //TODO: In this class we do not have to log but always transmit the image; Call communicator image method here
+        //String path = Config.getInstance().getProp("extractedChartPath") + "/" + getName() + ".png";
+        //cvSaveImage(path, croppedImage);
         croppedImage.release();
         copiedImage.release();
     }

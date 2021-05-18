@@ -11,15 +11,15 @@ public class ColorAnalyzer extends Analyzer {
     private boolean publish;
     private int positionX;
     private int positionY;
-    private ArrayList<Tuple<String, int[]>> translations;
+    private ArrayList<Tuple<String, int[]>> colorNames;
 
-    public ColorAnalyzer(String name, boolean log, boolean publish, int positionX, int positionY, ArrayList<Tuple<String, int[]>> translations, ArrayList<Tuple<String, String>> dependencyStrings) {
-        super(name);
+    public ColorAnalyzer(String name, Logger logger, Communicator communicator, boolean log, boolean publish, int positionX, int positionY, ArrayList<Tuple<String, int[]>> colorNames, ArrayList<Tuple<String, String>> dependencyStrings) {
+        super(name, logger, communicator);
         this.log = log;
         this.publish = publish;
         this.positionX = positionX;
         this.positionY = positionY;
-        this.translations = translations;
+        this.colorNames = colorNames;
         setDependencyStrings(dependencyStrings);
     }
 
@@ -37,7 +37,6 @@ public class ColorAnalyzer extends Analyzer {
             process = true;
         }
         if (process) {
-            setPreviousValue(getValue());
             opencv_core.IplImage imageCopy = image.clone();
             ByteBuffer img = imageCopy.getByteBuffer();
             int stepB = positionY * imageCopy.widthStep() + positionX * imageCopy.nChannels() + 0;
@@ -46,28 +45,31 @@ public class ColorAnalyzer extends Analyzer {
             int b = img.get(stepB) & 0xFF;
             int g = img.get(stepG) & 0xFF;
             int r = img.get(stepR) & 0xFF;
-            for (Tuple translation : translations) {
-                int difB = Math.abs(((int[])translation.y)[2] - b);
-                int difG = Math.abs(((int[])translation.y)[1] - g);
-                int difR = Math.abs(((int[])translation.y)[0] - r);
+            for (Tuple colorName : colorNames) {
+                int difB = Math.abs(((int[]) colorName.y)[2] - b);
+                int difG = Math.abs(((int[]) colorName.y)[1] - g);
+                int difR = Math.abs(((int[]) colorName.y)[0] - r);
+                String result = "unidentified Color";
                 if (difB + difG + difR < 30) {
-                    setValue(translation.x.toString());
+                    result = colorName.x.toString();
+                }
+                //check now if the value has changed
+                if (getValue() != result) {
                     if (Config.getInstance().getProp("consoleOutputEnabled").equals("true")) {
                         String out = "NAME: " + getName() + "; VALUE: " + getValue();
                         System.out.println(out);
                     }
-                    imageCopy.release();
+                    if(publish){
+                        //TODO: Add connection with communicator here
+                    }
+                    if(log){
+                        getLogger().log(getName(), result);
+                    }
+                    setValue(result);
                 }
+                imageCopy.release();
             }
         }
-    }
-
-    public boolean isLog() {
-        return log;
-    }
-
-    public boolean isPublish() {
-        return publish;
     }
 
     public int getPositionX() {
@@ -78,7 +80,7 @@ public class ColorAnalyzer extends Analyzer {
         return positionY;
     }
 
-    public ArrayList<Tuple<String, int[]>> getTranslations() {
-        return translations;
+    public ArrayList<Tuple<String, int[]>> getColorNames() {
+        return colorNames;
     }
 }

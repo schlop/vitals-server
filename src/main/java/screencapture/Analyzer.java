@@ -8,14 +8,16 @@ public abstract class Analyzer {
 
     private String name;
     private String value;
-    private String previousValue;
     private ArrayList<Tuple<String, String>> dependencyStrings;
     private ArrayList<Tuple<Analyzer, String>> dependencies;
+    private Logger logger;
+    private Communicator communicator;
 
-    public Analyzer(String name){
+    public Analyzer(String name, Logger logger, Communicator communicator){
         this.name = name;
+        this.logger = logger;
+        this.communicator = communicator;
         this.value = "";
-        this.previousValue = "";
         dependencyStrings = new ArrayList<>();
         dependencies = new ArrayList<>();
     }
@@ -33,12 +35,12 @@ public abstract class Analyzer {
         this.value = value;
     }
 
-    public String getPreviousValue() {
-        return previousValue;
+    public Logger getLogger() {
+        return logger;
     }
 
-    public void setPreviousValue(String previousValue) {
-        this.previousValue = previousValue;
+    public Communicator getCommunicator() {
+        return communicator;
     }
 
     public ArrayList<Tuple<String, String>> getDependencyStrings() {

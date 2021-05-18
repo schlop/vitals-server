@@ -6,7 +6,7 @@ csvOutputPath = output
 
 Paths to files that are required for the software to run: config file that defines information to be extracted (analyzerConfig), image or video of screen to be analysed for debug purposes (sampleImagePath), https certificate (httpsCertPath)
 analyzerConfig = config_v01.xml
-sampleImagePath = debug/layout.png
+sampleImagePath = debug/blank.png
 httpsCertPath = mycert.keystore
 
 Configuration of the software: screenshots with superimposed results (validationEnabled), read data from file instead of from capture card (debugEnabled), create CSV logfile (logEnabled), write all analysis results to console (consoleOutputEnabled)

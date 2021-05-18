@@ -36,7 +36,6 @@ public class ScreenCaptureController {
     private OpenCVFrameConverter.ToIplImage converter;
 
     private ArrayList<Analyzer> analyzerList;
-    private MainController mainController;
 
     private void setupScreenCapture() throws Exception {
         grabber = FrameGrabber.createDefault(Integer.parseInt(Config.getInstance().getProp("captureDeviceNumber")));
@@ -52,9 +51,8 @@ public class ScreenCaptureController {
         grabbedImage = converter.convert(grabber.grab());
     }
 
-    public ScreenCaptureController(MainController mainController) {
+    public ScreenCaptureController(Logger logger, Communicator communicator) {
         //setup of class variables
-        this.mainController = mainController;
         Loader.load(opencv_objdetect.class);
 
         //initialize screen capture
@@ -189,7 +187,7 @@ public class ScreenCaptureController {
                                 position_y != null &&
                                 size_x != null &&
                                 size_y != null){
-                            TextAnalyzer textAnalyzer = new TextAnalyzer(name, log, publish, allowedChars, position_x, position_y, size_x, size_y, dependencyStrings);
+                            TextAnalyzer textAnalyzer = new TextAnalyzer(name, logger, communicator, log, publish, allowedChars, position_x, position_y, size_x, size_y, dependencyStrings);
                             analyzerList.add(textAnalyzer);
                         }
                         else{
@@ -203,7 +201,7 @@ public class ScreenCaptureController {
                                 position_x != null &&
                                 position_y != null &&
                                 translations.size() != 0) {
-                            ColorAnalyzer colorAnalyzer = new ColorAnalyzer(name, log, publish, position_x, position_y, translations, dependencyStrings);
+                            ColorAnalyzer colorAnalyzer = new ColorAnalyzer(name, logger, communicator, log, publish, position_x, position_y, translations, dependencyStrings);
                             analyzerList.add(colorAnalyzer);
                         }
                         else{
@@ -216,7 +214,7 @@ public class ScreenCaptureController {
                                 position_y != null &&
                                 size_x != null &&
                                 size_y != null){
-                            ImageAnalyzer imageAnalyzer = new ImageAnalyzer(name, position_x, position_y, size_x, size_y);
+                            ImageAnalyzer imageAnalyzer = new ImageAnalyzer(name, logger, communicator, position_x, position_y, size_x, size_y);
                             analyzerList.add(imageAnalyzer);
                         }
                         else{
@@ -269,11 +267,9 @@ public class ScreenCaptureController {
                     }
                     long start = System.currentTimeMillis();
                     IplImage image = grabbedImage.clone();
-                    ArrayList<String> texts = new ArrayList<String>();
                     for (Analyzer analyzer : analyzerList) {
                         analyzer.processImage(image);
                     }
-                    mainController.vitalSignUpdate();
                     if (Config.getInstance().getProp("validationEnabled").equals("true")) {
                         recordScreen(image);
                     }
@@ -304,9 +300,5 @@ public class ScreenCaptureController {
         String path = Config.getInstance().getProp("extractedValidationPath") + "/" + System.currentTimeMillis() + ".png";
         cvSaveImage(path, copyedImage);
         copyedImage.release();
-    }
-
-    public ArrayList<Analyzer> getAnalyzerList() {
-        return analyzerList;
     }
 }

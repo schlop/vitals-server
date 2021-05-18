@@ -9,10 +9,9 @@ import java.util.concurrent.ScheduledExecutorService;
  * Capture interval is now managed by the screen capture controller
  */
 public class MainController {
-
-    private HttpServerController hc;
     private ScreenCaptureController sc;
-    private Logger log;
+    private Communicator communicator;
+    private Logger logger;
 
     public static void main(String[] args) {
         MainController mc = new MainController();
@@ -20,29 +19,18 @@ public class MainController {
     }
 
     public MainController() {
-        sc = new ScreenCaptureController(this);
-        ArrayList<Analyzer> ana = sc.getAnalyzerList();
-        hc = new HttpServerController(ana);
-        log = new Logger(ana);
+        communicator = new Communicator();
+        logger = new Logger();
+        sc = new ScreenCaptureController(logger, communicator);
     }
 
     public void start() {
-        hc.start();
         sc.start();
     }
 
     public void stop() {
-        if (hc.isRunning()) {
-            hc.stop();
-        }
     }
 
-    public void vitalSignUpdate() {
-        hc.publishAnalyzers();
-        if (Boolean.parseBoolean(Config.getInstance().getProp("logEnabled"))){
-            log.logAnalyzers();
-        }
-    }
 }
 
 

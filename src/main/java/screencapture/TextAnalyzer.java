@@ -33,6 +33,8 @@ public class TextAnalyzer extends Analyzer {
     private int sizeY;
 
     public TextAnalyzer(String name,
+                        Logger logger,
+                        Communicator communicator,
                         boolean log,
                         boolean publish,
                         String allowedChars,
@@ -41,7 +43,7 @@ public class TextAnalyzer extends Analyzer {
                         int size_x,
                         int size_y,
                         ArrayList<Tuple<String, String>> dependencyStrings) {
-        super(name);
+        super(name, logger, communicator);
         this.log = log;
         this.publish = publish;
         this.allowedChars = allowedChars;
@@ -83,7 +85,6 @@ public class TextAnalyzer extends Analyzer {
             process = true;
         }
         if (process){
-            setPreviousValue(getValue());
             IplImage imageCopy = image.clone();
             IplImage adjustedImage = adjustImage(imageCopy);
             String path = Config.getInstance().getProp("extractedImagePath") + "/" + getName() + ".png";
@@ -93,14 +94,22 @@ public class TextAnalyzer extends Analyzer {
             lept.PIX input = pixRead(path);
             ocr.SetImage(input);
             outText = ocr.GetUTF8Text();
-            String output = outText.getString();
-            setValue(output.replace("\n", "").replace("\r", "").replace(" ", ""));
-            pixDestroy(input);
-
-            if (Config.getInstance().getProp("consoleOutputEnabled").equals("true")) {
-                String out = "NAME: " + getName() + "; VALUE: " + getValue();
-                System.out.println(out);
+            String result = outText.getString();
+            result = result.replace("\n", "").replace("\r", "").replace(" ", "");
+            if (result != getValue()){
+                if (Config.getInstance().getProp("consoleOutputEnabled").equals("true")) {
+                    String out = "NAME: " + getName() + "; VALUE: " + getValue();
+                    System.out.println(out);
+                }
+                if(publish){
+                    //TODO: Add connection with communicator here
+                }
+                if(log){
+                    getLogger().log(getName(), result);
+                }
+                setValue(result);
             }
+            pixDestroy(input);
             imageCopy.release();
         }
     }
@@ -135,14 +144,6 @@ public class TextAnalyzer extends Analyzer {
         resizedImage.release();
 
         return returnImage;
-    }
-
-    public boolean isLog() {
-        return log;
-    }
-
-    public boolean isPublish() {
-        return publish;
     }
 
     public String getAllowedChars() {

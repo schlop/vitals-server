@@ -1,13 +1,9 @@
 package screencapture;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-import sun.lwawt.macosx.CPrinterDevice;
 
 import javax.net.ssl.*;
 import javax.xml.parsers.DocumentBuilder;

@@ -19,11 +19,10 @@ import java.util.Calendar;
  */
 public class Logger {
 
+    //TODO: We either have to create a new thread in here are call from a new thread. Otherwise we block the image recognition with our IO
     private FileWriter alarmsFileWriter;
-    private ArrayList<Analyzer> analyzerArrayList;
 
-    public Logger(ArrayList<Analyzer> analyzerArrayList) {
-        this.analyzerArrayList = analyzerArrayList;
+    public Logger() {
 
         String pattern = "ddMMMM_hhmm";
         Calendar cal = Calendar.getInstance();
@@ -39,38 +38,44 @@ public class Logger {
             e.printStackTrace();
         }
 
-        String csvHeadings = "time,analyzer,previous value,current value";
+        String csvHeadings = "time,analyzer,value";
         writeToCSV(alarmsFileWriter, csvHeadings);
     }
 
-    public void logAnalyzers() {
-        for (Analyzer analyzer : analyzerArrayList) {
-            if (analyzer instanceof TextAnalyzer) {
-                TextAnalyzer textAnalyzer = (TextAnalyzer) analyzer;
-                if (textAnalyzer.isLog() && !textAnalyzer.getValue().equals(textAnalyzer.getPreviousValue())) {
-                    String csvString = System.currentTimeMillis() + "," +
-                            textAnalyzer.getName() + "," +
-                            textAnalyzer.getPreviousValue() +
-                            "," + textAnalyzer.getValue();
-                    writeToCSV(alarmsFileWriter, csvString);
-                    System.out.println("[LOGGER] Wrote status change");
-                }
-            }
-            if (analyzer instanceof ColorAnalyzer) {
-                ColorAnalyzer colorAnalyzer = (ColorAnalyzer) analyzer;
-                if (colorAnalyzer.isLog()) {
-                    if (colorAnalyzer.isLog() && !colorAnalyzer.getValue().equals(colorAnalyzer.getPreviousValue())) {
-                        String csvString = System.currentTimeMillis() + "," +
-                                colorAnalyzer.getName() + "," +
-                                colorAnalyzer.getPreviousValue() +
-                                "," + colorAnalyzer.getValue();
-                        writeToCSV(alarmsFileWriter, csvString);
-                        System.out.println("[LOGGER] Wrote status change");
-                    }
-                }
-            }
-        }
+    public void log(String name, String value){
+        String csvString = System.currentTimeMillis() + "," + name + "," + value;
+        writeToCSV(alarmsFileWriter, csvString);
+        System.out.println("[LOGGER] Wrote status change");
     }
+
+//    public void logAnalyzers() {
+//        for (Analyzer analyzer : analyzerArrayList) {
+//            if (analyzer instanceof TextAnalyzer) {
+//                TextAnalyzer textAnalyzer = (TextAnalyzer) analyzer;
+//                if (textAnalyzer.isLog() && !textAnalyzer.getValue().equals(textAnalyzer.getPreviousValue())) {
+//                    String csvString = System.currentTimeMillis() + "," +
+//                            textAnalyzer.getName() + "," +
+//                            textAnalyzer.getPreviousValue() +
+//                            "," + textAnalyzer.getValue();
+//                    writeToCSV(alarmsFileWriter, csvString);
+//                    System.out.println("[LOGGER] Wrote status change");
+//                }
+//            }
+//            if (analyzer instanceof ColorAnalyzer) {
+//                ColorAnalyzer colorAnalyzer = (ColorAnalyzer) analyzer;
+//                if (colorAnalyzer.isLog()) {
+//                    if (colorAnalyzer.isLog() && !colorAnalyzer.getValue().equals(colorAnalyzer.getPreviousValue())) {
+//                        String csvString = System.currentTimeMillis() + "," +
+//                                colorAnalyzer.getName() + "," +
+//                                colorAnalyzer.getPreviousValue() +
+//                                "," + colorAnalyzer.getValue();
+//                        writeToCSV(alarmsFileWriter, csvString);
+//                        System.out.println("[LOGGER] Wrote status change");
+//                    }
+//                }
+//            }
+//        }
+//    }
     private void writeToCSV (FileWriter fw, String str){
         String add = str + "\n";
         try {
