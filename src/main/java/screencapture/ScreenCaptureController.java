@@ -16,7 +16,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 import static org.bytedeco.javacpp.opencv_imgcodecs.cvLoadImage;
 import static org.bytedeco.javacpp.opencv_imgcodecs.cvSaveImage;
@@ -34,8 +33,10 @@ public class ScreenCaptureController {
     private IplImage grabbedImage;
     private FrameGrabber grabber;
     private OpenCVFrameConverter.ToIplImage converter;
-
     private ArrayList<Analyzer> analyzerList;
+
+    private long startTime;
+    private long framesAnalysed;
 
     private void setupScreenCapture() throws Exception {
         grabber = FrameGrabber.createDefault(Integer.parseInt(Config.getInstance().getProp("captureDeviceNumber")));
@@ -51,7 +52,7 @@ public class ScreenCaptureController {
         grabbedImage = converter.convert(grabber.grab());
     }
 
-    public ScreenCaptureController(Logger logger, Communicator communicator) {
+    public ScreenCaptureController() {
         //setup of class variables
         Loader.load(opencv_objdetect.class);
 
@@ -187,8 +188,8 @@ public class ScreenCaptureController {
                                 position_y != null &&
                                 size_x != null &&
                                 size_y != null){
-                            TextAnalyzer textAnalyzer = new TextAnalyzer(name, logger, communicator, log, publish, allowedChars, position_x, position_y, size_x, size_y, dependencyStrings);
-                            analyzerList.add(textAnalyzer);
+                            AnalyzerText analyzerText = new AnalyzerText(name, log, publish, allowedChars, position_x, position_y, size_x, size_y, dependencyStrings);
+                            analyzerList.add(analyzerText);
                         }
                         else{
                             throw new IllegalArgumentException("Tried to create TextAnalyser but not all required fields were defined in XML file");
@@ -201,8 +202,8 @@ public class ScreenCaptureController {
                                 position_x != null &&
                                 position_y != null &&
                                 translations.size() != 0) {
-                            ColorAnalyzer colorAnalyzer = new ColorAnalyzer(name, logger, communicator, log, publish, position_x, position_y, translations, dependencyStrings);
-                            analyzerList.add(colorAnalyzer);
+                            AnalyzerColor analyzerColor = new AnalyzerColor(name, log, publish, position_x, position_y, translations, dependencyStrings);
+                            analyzerList.add(analyzerColor);
                         }
                         else{
                             throw new IllegalArgumentException("Tried to create ColorAnalyser but not all required fields were defined in XML file");
@@ -214,8 +215,8 @@ public class ScreenCaptureController {
                                 position_y != null &&
                                 size_x != null &&
                                 size_y != null){
-                            ImageAnalyzer imageAnalyzer = new ImageAnalyzer(name, logger, communicator, position_x, position_y, size_x, size_y);
-                            analyzerList.add(imageAnalyzer);
+                            AnalyzerImage analyzerImage = new AnalyzerImage(name, position_x, position_y, size_x, size_y);
+                            analyzerList.add(analyzerImage);
                         }
                         else{
                             throw new IllegalArgumentException("Tried to create ImageAnalyser but not all required fields were defined in XML file");
@@ -241,8 +242,10 @@ public class ScreenCaptureController {
         System.out.println("[SCREEN CAPTURE] Capture started");
     }
 
-
+    //TODO replace this with ThreadPoolExecutor; Check if new Frame is available; Then check if ThreadPool is empty; Then cue all analysis steps
     public void start() {
+        startTime = System.currentTimeMillis();
+        framesAnalysed = 0;
         Thread thread = new Thread() {
             public void run() {
                 while (true) {
@@ -265,7 +268,6 @@ public class ScreenCaptureController {
                             }
                         }
                     }
-                    long start = System.currentTimeMillis();
                     IplImage image = grabbedImage.clone();
                     for (Analyzer analyzer : analyzerList) {
                         analyzer.processImage(image);
@@ -274,8 +276,13 @@ public class ScreenCaptureController {
                         recordScreen(image);
                     }
                     image.release();
-                    long duration = System.currentTimeMillis() - start;
-                    System.out.println("[SCREEN CAPTURE] Analyzed image in " + duration + " ms");
+                    framesAnalysed += 1;
+                    if (startTime + 60000 < System.currentTimeMillis()){
+                        double FPS = framesAnalysed / 60;
+                        System.out.println("[SCREEN CAPTURE] Currently analysing " + FPS + " frames per second");
+                        framesAnalysed = 0;
+                        startTime = System.currentTimeMillis();
+                    }
                 }
             }
         };
@@ -286,15 +293,15 @@ public class ScreenCaptureController {
         IplImage copyedImage = image.clone();
         CvFont font = cvFont(1, 1);
         for (Analyzer analyzer : analyzerList) {
-            if (analyzer instanceof TextAnalyzer) {
-                TextAnalyzer textAnalyzer = (TextAnalyzer) analyzer;
-                int[] pos = {textAnalyzer.getPositionX(), textAnalyzer.getPositionY()};
-                cvPutText(copyedImage, textAnalyzer.getValue(), pos, font, opencv_core.CvScalar.WHITE);
+            if (analyzer instanceof AnalyzerText) {
+                AnalyzerText analyzerText = (AnalyzerText) analyzer;
+                int[] pos = {analyzerText.getPositionX(), analyzerText.getPositionY()};
+                cvPutText(copyedImage, analyzerText.getValue(), pos, font, opencv_core.CvScalar.WHITE);
             }
-            else if (analyzer instanceof ColorAnalyzer) {
-                ColorAnalyzer colorAnalyzer = (ColorAnalyzer) analyzer;
-                int[] pos = {colorAnalyzer.getPositionX(), colorAnalyzer.getPositionY()};
-                cvPutText(copyedImage, colorAnalyzer.getValue(), pos, font, opencv_core.CvScalar.WHITE);
+            else if (analyzer instanceof AnalyzerColor) {
+                AnalyzerColor analyzerColor = (AnalyzerColor) analyzer;
+                int[] pos = {analyzerColor.getPositionX(), analyzerColor.getPositionY()};
+                cvPutText(copyedImage, analyzerColor.getValue(), pos, font, opencv_core.CvScalar.WHITE);
             }
         }
         String path = Config.getInstance().getProp("extractedValidationPath") + "/" + System.currentTimeMillis() + ".png";

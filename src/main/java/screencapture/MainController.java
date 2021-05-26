@@ -1,5 +1,10 @@
 package screencapture;
 
+import org.json.JSONObject;
+import publisher.Publisher;
+import publisher.Subscriber;
+import publisher.SubscriberChangeListener;
+
 import java.util.ArrayList;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -10,8 +15,7 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public class MainController {
     private ScreenCaptureController sc;
-    private Communicator communicator;
-    private Logger logger;
+    private WebUiController ui;
 
     public static void main(String[] args) {
         MainController mc = new MainController();
@@ -19,18 +23,22 @@ public class MainController {
     }
 
     public MainController() {
-        communicator = new Communicator();
-        logger = new Logger();
-        sc = new ScreenCaptureController(logger, communicator);
+        sc = new ScreenCaptureController();
+        ui = new WebUiController();
+        if(Config.getInstance().getProp("logEnabled").equals("true")){
+            Logger.getInstance();
+        }
+        Publisher.INSTANCE.startNetworking(8888, 8, true);
     }
+
 
     public void start() {
         sc.start();
+        ui.start();
     }
 
     public void stop() {
     }
-
 }
 
 

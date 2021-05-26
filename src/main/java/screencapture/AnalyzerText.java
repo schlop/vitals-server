@@ -1,10 +1,11 @@
 package screencapture;
 
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.lept;
 import org.bytedeco.javacpp.tesseract;
+import publisher.Publisher;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import static org.bytedeco.javacpp.lept.pixDestroy;
@@ -20,7 +21,7 @@ import static org.bytedeco.javacpp.opencv_imgproc.*;
  * Analyzes a small area of the screen with OCR and extracts characters. For each numeric or word an instance of this
  * class is created.
  */
-public class TextAnalyzer extends Analyzer {
+public class AnalyzerText extends Analyzer {
 
     private tesseract.TessBaseAPI ocr;
 
@@ -32,9 +33,7 @@ public class TextAnalyzer extends Analyzer {
     private int sizeX;
     private int sizeY;
 
-    public TextAnalyzer(String name,
-                        Logger logger,
-                        Communicator communicator,
+    public AnalyzerText(String name,
                         boolean log,
                         boolean publish,
                         String allowedChars,
@@ -43,7 +42,7 @@ public class TextAnalyzer extends Analyzer {
                         int size_x,
                         int size_y,
                         ArrayList<Tuple<String, String>> dependencyStrings) {
-        super(name, logger, communicator);
+        super(name);
         this.log = log;
         this.publish = publish;
         this.allowedChars = allowedChars;
@@ -69,13 +68,13 @@ public class TextAnalyzer extends Analyzer {
         boolean process = false;
         if (getDependencies().size() != 0){
             for (Tuple tuple : getDependencies()){
-                if (tuple.x instanceof TextAnalyzer){
-                    if (((TextAnalyzer) tuple.x).getValue().equals(tuple.y)){
+                if (tuple.x instanceof AnalyzerText){
+                    if (((AnalyzerText) tuple.x).getValue().equals(tuple.y)){
                         process = true;
                     }
                 }
-                else if (tuple.x instanceof ColorAnalyzer){
-                    if (((ColorAnalyzer) tuple.x).getValue().equals(tuple.y)){
+                else if (tuple.x instanceof AnalyzerColor){
+                    if (((AnalyzerColor) tuple.x).getValue().equals(tuple.y)){
                         process = true;
                     }
                 }
@@ -96,16 +95,16 @@ public class TextAnalyzer extends Analyzer {
             outText = ocr.GetUTF8Text();
             String result = outText.getString();
             result = result.replace("\n", "").replace("\r", "").replace(" ", "");
-            if (result != getValue()){
+            if (!result.equals(getValue())){
                 if (Config.getInstance().getProp("consoleOutputEnabled").equals("true")) {
                     String out = "NAME: " + getName() + "; VALUE: " + getValue();
                     System.out.println(out);
                 }
                 if(publish){
-                    //TODO: Add connection with communicator here
+                    Publisher.INSTANCE.publish(this.toJSON());
                 }
-                if(log){
-                    getLogger().log(getName(), result);
+                if(log && Config.getInstance().getProp("logEnabled").equals("true")){
+                    Logger.getInstance().log(getName(), result);
                 }
                 setValue(result);
             }

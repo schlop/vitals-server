@@ -1,6 +1,7 @@
 package screencapture;
 
 import org.bytedeco.javacpp.opencv_core;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -11,12 +12,9 @@ public abstract class Analyzer {
     private ArrayList<Tuple<String, String>> dependencyStrings;
     private ArrayList<Tuple<Analyzer, String>> dependencies;
     private Logger logger;
-    private Communicator communicator;
 
-    public Analyzer(String name, Logger logger, Communicator communicator){
+    public Analyzer(String name){
         this.name = name;
-        this.logger = logger;
-        this.communicator = communicator;
         this.value = "";
         dependencyStrings = new ArrayList<>();
         dependencies = new ArrayList<>();
@@ -25,7 +23,6 @@ public abstract class Analyzer {
     public String getName() {
         return name;
     }
-
 
     public String getValue() {
         return value;
@@ -37,10 +34,6 @@ public abstract class Analyzer {
 
     public Logger getLogger() {
         return logger;
-    }
-
-    public Communicator getCommunicator() {
-        return communicator;
     }
 
     public ArrayList<Tuple<String, String>> getDependencyStrings() {
@@ -62,5 +55,13 @@ public abstract class Analyzer {
     public String toString(){
         return "{\"name\": \"" + name + "\", \"value\": \"" + value + "\"}";
     }
+
+    public JSONObject toJSON(){
+        JSONObject json = new JSONObject();
+        json.put("name", name);
+        json.put("value", value);
+        return json;
+    }
+
     public abstract void processImage(opencv_core.IplImage image);
 }

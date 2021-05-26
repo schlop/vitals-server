@@ -12,14 +12,14 @@ import static org.bytedeco.javacpp.opencv_imgcodecs.cvSaveImage;
  * No OCR is required
  *
  */
-public class ImageAnalyzer extends  Analyzer{
+public class AnalyzerImage extends  Analyzer{
     private int position_x;
     private int position_y;
     private int size_x;
     private int size_y;
 
-    public ImageAnalyzer(String name, Logger logger, Communicator communicator, int position_x, int position_y, int size_x, int size_y) {
-        super(name, logger, communicator);
+    public AnalyzerImage(String name, int position_x, int position_y, int size_x, int size_y) {
+        super(name);
         this.position_x = position_x;
         this.position_y = position_y;
         this.size_x = size_x;

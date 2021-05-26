@@ -1,11 +1,12 @@
 package screencapture;
 
 import org.bytedeco.javacpp.opencv_core;
+import publisher.Publisher;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
-public class ColorAnalyzer extends Analyzer {
+public class AnalyzerColor extends Analyzer {
 
     private boolean log;
     private boolean publish;
@@ -13,8 +14,8 @@ public class ColorAnalyzer extends Analyzer {
     private int positionY;
     private ArrayList<Tuple<String, int[]>> colorNames;
 
-    public ColorAnalyzer(String name, Logger logger, Communicator communicator, boolean log, boolean publish, int positionX, int positionY, ArrayList<Tuple<String, int[]>> colorNames, ArrayList<Tuple<String, String>> dependencyStrings) {
-        super(name, logger, communicator);
+    public AnalyzerColor(String name, boolean log, boolean publish, int positionX, int positionY, ArrayList<Tuple<String, int[]>> colorNames, ArrayList<Tuple<String, String>> dependencyStrings) {
+        super(name);
         this.log = log;
         this.publish = publish;
         this.positionX = positionX;
@@ -27,8 +28,8 @@ public class ColorAnalyzer extends Analyzer {
         boolean process = false;
         if (getDependencies().size() != 0) {
             for (Tuple tuple : getDependencies()) {
-                if (tuple.x instanceof TextAnalyzer) {
-                    if (((TextAnalyzer) tuple.x).getValue().equals(tuple.y)) {
+                if (tuple.x instanceof AnalyzerText) {
+                    if (((AnalyzerText) tuple.x).getValue().equals(tuple.y)) {
                         process = true;
                     }
                 }
@@ -54,16 +55,16 @@ public class ColorAnalyzer extends Analyzer {
                     result = colorName.x.toString();
                 }
                 //check now if the value has changed
-                if (getValue() != result) {
+                if (!result.equals(getValue())) {
                     if (Config.getInstance().getProp("consoleOutputEnabled").equals("true")) {
                         String out = "NAME: " + getName() + "; VALUE: " + getValue();
                         System.out.println(out);
                     }
                     if(publish){
-                        //TODO: Add connection with communicator here
+                        Publisher.INSTANCE.publish(this.toJSON());
                     }
-                    if(log){
-                        getLogger().log(getName(), result);
+                    if(log && Config.getInstance().getProp("logEnabled").equals("true")){
+                        Logger.getInstance().log(getName(), result);
                     }
                     setValue(result);
                 }

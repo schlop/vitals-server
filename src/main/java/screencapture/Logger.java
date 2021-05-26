@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 
 /**
@@ -18,11 +17,18 @@ import java.util.Calendar;
  * Entries are only added when there was a change (alarm level or alarm status changed)
  */
 public class Logger {
-
-    //TODO: We either have to create a new thread in here are call from a new thread. Otherwise we block the image recognition with our IO
     private FileWriter alarmsFileWriter;
+    private static Logger instance;
 
-    public Logger() {
+    public static Logger getInstance()
+    {
+        if (instance == null)
+            instance = new Logger();
+
+        return instance;
+    }
+
+    private Logger() {
 
         String pattern = "ddMMMM_hhmm";
         Calendar cal = Calendar.getInstance();
@@ -46,6 +52,16 @@ public class Logger {
         String csvString = System.currentTimeMillis() + "," + name + "," + value;
         writeToCSV(alarmsFileWriter, csvString);
         System.out.println("[LOGGER] Wrote status change");
+    }
+
+    private void writeToCSV (FileWriter fw, String str){
+        String add = str + "\n";
+        try {
+            fw.append(add);
+            fw.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 //    public void logAnalyzers() {
@@ -76,13 +92,5 @@ public class Logger {
 //            }
 //        }
 //    }
-    private void writeToCSV (FileWriter fw, String str){
-        String add = str + "\n";
-        try {
-            fw.append(add);
-            fw.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+
 }
