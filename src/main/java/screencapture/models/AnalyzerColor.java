@@ -1,7 +1,9 @@
-package screencapture;
+package screencapture.models;
 
 import org.bytedeco.javacpp.opencv_core;
 import publisher.Publisher;
+import screencapture.Config;
+import screencapture.Logger;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;

@@ -1,7 +1,8 @@
-package screencapture;
+package screencapture.models;
 
 import org.bytedeco.javacpp.opencv_core;
 import org.json.JSONObject;
+import screencapture.Logger;
 
 import java.util.ArrayList;
 

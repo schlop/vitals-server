@@ -29,12 +29,6 @@
             <version>3.04.01-1.3</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.bytedeco.javacpp-presets</groupId>
-            <artifactId>leptonica-platform</artifactId>
-            <version>1.73-1.3</version>
-        </dependency>
-
         <!-- https://mvnrepository.com/artifact/org.w3c/dom -->
         <dependency>
             <groupId>org.w3c</groupId>
@@ -42,42 +36,23 @@
             <version>2.3.0-jaxb-1.0.6</version>
         </dependency>
 
-        <!-- http://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/2.8.6/jackson-core-2.8.6.jar -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>2.8.6</version>
-        </dependency>
-        <!-- http://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-annotations/2.8.6/jackson-annotations-2.8.6.jar -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>2.8.6</version>
-        </dependency>
-        <!-- http://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/2.8.6/jackson-databind-2.8.6.jar -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.8.6</version>
-        </dependency>
-
-        <dependency>
-            <groupId>cerg.networking</groupId>
-            <artifactId>NetworkingService</artifactId>
-            <version>2.16.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>cerg.networking</groupId>
-            <artifactId>NetworkingService</artifactId>
-            <version>2.16.2</version>
-        </dependency>
-
         <!-- https://mvnrepository.com/artifact/org.json/json -->
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20210307</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cerg.networking</groupId>
+            <artifactId>NetworkingService</artifactId>
+            <version>2.16.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.j2html</groupId>
+            <artifactId>j2html</artifactId>
+            <version>1.4.0</version>
         </dependency>
 
     </dependencies>
@@ -92,7 +67,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>screencapture.MainController</mainClass>
+                            <mainClass>screencapture.controllers.MainController</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -101,8 +76,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>7</source>
-                    <target>7</target>
+                    <source>8</source>
+                    <target>8</target>
                 </configuration>
             </plugin>
         </plugins>

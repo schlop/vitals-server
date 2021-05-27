@@ -1,12 +1,8 @@
-package screencapture;
+package screencapture.controllers;
 
-import org.json.JSONObject;
 import publisher.Publisher;
-import publisher.Subscriber;
-import publisher.SubscriberChangeListener;
-
-import java.util.ArrayList;
-import java.util.concurrent.ScheduledExecutorService;
+import screencapture.Config;
+import screencapture.Logger;
 
 /**
  * Created by Paul on 12/09/2017.

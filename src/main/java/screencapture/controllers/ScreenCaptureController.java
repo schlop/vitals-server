@@ -1,4 +1,4 @@
-package screencapture;
+package screencapture.controllers;
 
 import org.bytedeco.javacpp.Loader;
 import org.bytedeco.javacpp.opencv_core;
@@ -11,6 +11,8 @@ import org.bytedeco.javacv.OpenCVFrameGrabber;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import screencapture.Config;
+import screencapture.models.*;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -94,8 +96,7 @@ public class ScreenCaptureController {
             DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document doc = dBuilder.parse(xml);
             doc.getDocumentElement().normalize();
-
-            NodeList analyserNodeList = doc.getElementsByTagName("definition").item(0).getChildNodes();
+            NodeList analyserNodeList = doc.getElementsByTagName("analysers").item(0).getChildNodes();
             for (int i = 0; i < analyserNodeList.getLength(); i++) {
                 String analyzerType = null;
                 String name = null;

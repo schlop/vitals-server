@@ -1,10 +1,11 @@
-package screencapture;
+package screencapture.models;
 
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.lept;
 import org.bytedeco.javacpp.tesseract;
 import publisher.Publisher;
+import screencapture.Config;
+import screencapture.Logger;
 
 import java.util.ArrayList;
 
