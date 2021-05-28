@@ -4,12 +4,14 @@ import java.util.HashMap;
 
 public class Event {
     private int id;
+    private String type;
     private String message;
     private int delay;
     private HashMap<String, String> extras;
 
-    public Event(int id, String message, int delay, HashMap<String, String> extras) {
+    public Event(int id, String type, String message, int delay, HashMap<String, String> extras) {
         this.id = id;
+        this.type = type;
         this.message = message;
         this.delay = delay;
         this.extras = extras;
@@ -29,5 +31,9 @@ public class Event {
 
     public HashMap<String, String> getExtras() {
         return extras;
+    }
+
+    public String getType() {
+        return type;
     }
 }

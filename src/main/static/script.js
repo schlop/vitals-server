@@ -8,7 +8,7 @@ window.onload = function() {
               headers: {
                   'Content-Type': 'application/json',
               },
-              body: '{\"id\": '.concat(id.path[0].name).concat('}');,
+              body: '{\"id\": '.concat(id.path[0].name).concat('}'),
             });
             id.path[0].className = "btn btn-success float-right";
             console.log('Completed!', response);

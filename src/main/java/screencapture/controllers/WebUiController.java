@@ -12,6 +12,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -39,8 +40,9 @@ public class WebUiController {
         try {
             httpServer = HttpServer.create(new InetSocketAddress(9555), 0);
             httpServer.createContext("/", new WebUiHandler());
+            httpServer.createContext("/command", new PostHandler());
             File[] folder = new File("src/main/static").listFiles();
-            for(File file : folder){
+            for (File file : folder) {
                 String name = "/" + file.getName();
                 httpServer.createContext(name, new FileHandler());
             }
@@ -50,7 +52,7 @@ public class WebUiController {
         }
     }
 
-    private void readEventConfig(){
+    private void readEventConfig() {
         try {
             File xml = new File(Config.getInstance().getProp("eventsConfig"));
             DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -58,6 +60,7 @@ public class WebUiController {
             doc.getDocumentElement().normalize();
             NodeList eventNodeList = doc.getElementsByTagName("events").item(0).getChildNodes();
             for (int i = 0; i < eventNodeList.getLength(); i++) {
+                String type = "UNKNOWN";
                 String message = "";
                 int delay = 0;
                 HashMap<String, String> extras = new HashMap<String, String>();
@@ -68,6 +71,9 @@ public class WebUiController {
                     switch (attribute.getNodeName()) {
                         case "message":
                             message = attribute.getFirstChild().getNodeValue();
+                            break;
+                        case "type":
+                            type = attribute.getFirstChild().getNodeValue();
                             break;
                         case "delay":
                             delay = Integer.parseInt(attribute.getFirstChild().getNodeValue());
@@ -83,7 +89,7 @@ public class WebUiController {
                     }
                 }
                 System.out.println(i);
-                Event event = new Event(i, message, delay, extras);
+                Event event = new Event(i, type, message, delay, extras);
                 eventList.add(event);
             }
         } catch (ParserConfigurationException e) {
@@ -122,6 +128,7 @@ public class WebUiController {
     public class WebUiHandler implements HttpHandler {
 
         private String html;
+
         public WebUiHandler() {
             html = generateHTML();
         }
@@ -132,9 +139,18 @@ public class WebUiController {
                 String generated = each(eventList, event ->
                         div(attrs(".list-group-item"),
                                 div(attrs(".row .align-items-center"),
-                                        div(attrs(".col"), event.getMessage()),
-                                        div(attrs(".col-2"),
-                                                button(attrs(".btn .btn-primary .float-right"), "Send").withName(String.valueOf(event.getId())))))).render();
+                                        div(attrs(".col-10"),
+                                                div(attrs(".row mb-2"),
+                                                        div(attrs(".col"), event.getMessage())),
+                                                div(attrs(".row justify-content-start"),
+                                                        div(attrs(".col-auto"),
+                                                                small(attrs(".text-muted"), "Type: " + event.getType())),
+                                                        div(attrs(".col-auto"),
+                                                                iff(event.getDelay() != 0, small(attrs(".text-muted"), "Delay: " + event.getDelay()))),
+                                                        div(attrs(".col-auto"),
+                                                                iff(event.getExtras().size() != 0, small(attrs(".text-muted"), "Extras: " + event.getExtras().size()))))),
+                                        div(attrs(".col .ml-auto"),
+                                                button(attrs(".btn .btn-secondary .float-right"), "Send").withName(String.valueOf(event.getId())))))).render();
                 MessageFormat form = new MessageFormat(template);
                 Object[] insert = {generated};
                 return form.format(insert);
@@ -143,6 +159,7 @@ public class WebUiController {
             }
             return "An Error occurred";
         }
+
 
         public void handle(HttpExchange he) throws IOException {
             Headers h = he.getResponseHeaders();
@@ -161,7 +178,6 @@ public class WebUiController {
 
         @Override
         public void handle(HttpExchange he) throws IOException {
-
             Headers h = he.getResponseHeaders();
             String fileName = he.getRequestURI().toString();
             String contentType = "text/" + fileName.split("\\.")[1];
@@ -174,6 +190,39 @@ public class WebUiController {
             ps.print(content);
             ps.close();
             os.close();
+        }
+    }
+
+    public class PostHandler implements HttpHandler {
+
+        @Override
+        public void handle(HttpExchange he) throws IOException {
+
+            if (he.getRequestMethod().equalsIgnoreCase("POST")) {
+                try {
+                    Headers requestHeaders = he.getRequestHeaders();
+
+                    int contentLength = Integer.parseInt(requestHeaders.getFirst("Content-length"));
+
+                    InputStream is = he.getRequestBody();
+
+                    byte[] data = new byte[contentLength];
+                    int length = is.read(data);
+
+                    Headers responseHeaders = he.getResponseHeaders();
+
+                    he.sendResponseHeaders(HttpURLConnection.HTTP_OK, contentLength);
+
+                    OutputStream os = he.getResponseBody();
+
+                    os.write(data);
+                    he.close();
+                    System.out.println(new String(data));
+
+                } catch (NumberFormatException | IOException e) {
+                }
+            }
+
         }
     }
 }
