@@ -1,10 +1,23 @@
 package screencapture.models;
 
+import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.IplImage;
+import org.bytedeco.javacv.Java2DFrameUtils;
+import org.bytedeco.javacv.OpenCVFrameConverter;
+import publisher.Publisher;
+import screencapture.Config;
+
+import java.awt.image.DataBufferByte;
+import java.io.File;
+import java.io.IOException;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.util.Base64;
 
 import static org.bytedeco.javacpp.opencv_core.*;
-import static org.bytedeco.javacpp.opencv_imgcodecs.cvSaveImage;
+import static org.bytedeco.javacpp.opencv_imgcodecs.*;
 
 /**
  * Created by Paul on 29/01/2018.
@@ -36,9 +49,19 @@ public class AnalyzerImage extends  Analyzer{
         cvSetImageROI(copiedImage, cropBox);
         IplImage croppedImage = copiedImage.clone();
         cvCopy(copiedImage, croppedImage);
-        //TODO: In this class we do not have to log but always transmit the image; Call communicator image method here
-        //String path = Config.getInstance().getProp("extractedChartPath") + "/" + getName() + ".png";
-        //cvSaveImage(path, croppedImage);
+        //TODO: Make this a bit nicer; Check if Publish is set; Allow frame rate limiting to save bandwidth
+//        String path = Config.getInstance().getProp("extractedChartPath") + "/" + getName() + ".png";
+//        cvSaveImage(path, copiedImage);
+        CvMat fu = cvEncodeImage(".png", croppedImage);
+        ByteBuffer bb = fu.getByteBuffer();
+        byte[] arr = new byte[bb.remaining()];
+        bb.get(arr);
+        String result = Base64.getEncoder().encodeToString(arr);
+        setValue(result);
+        System.out.println(result);
+        Publisher.INSTANCE.publish(this.toJSON());
+
+        fu.release();
         croppedImage.release();
         copiedImage.release();
     }

@@ -96,22 +96,33 @@ public class AnalyzerText extends Analyzer {
             outText = ocr.GetUTF8Text();
             String result = outText.getString();
             result = result.replace("\n", "").replace("\r", "").replace(" ", "");
-            if (!result.equals(getValue())){
-                if (Config.getInstance().getProp("consoleOutputEnabled").equals("true")) {
-                    String out = "NAME: " + getName() + "; VALUE: " + getValue();
-                    System.out.println(out);
-                }
+            if (!result.equals(getValue()) && isVitalSignValid(result)){
+                setValue(result);
                 if(publish){
                     Publisher.INSTANCE.publish(this.toJSON());
                 }
                 if(log && Config.getInstance().getProp("logEnabled").equals("true")){
                     Logger.getInstance().log(getName(), result);
                 }
-                setValue(result);
+                if (Config.getInstance().getProp("consoleOutputEnabled").equals("true")) {
+                    String out = getName() + ": " + getValue();
+                    System.out.println(out);
+                }
             }
             pixDestroy(input);
             imageCopy.release();
         }
+    }
+
+    private boolean isVitalSignValid(String result){
+        if (getName().contains("VS_BP")){
+            String regex = "\\d{1,3}(\\/|1)\\d{1,3}\\(\\d{1,3}\\)";
+            if (! result.matches(regex)) return false;
+        }
+        if (getName().contains("VS_SPO2") || getName().contains("VS_HR")){
+            if (result.equals("")) return false;
+        }
+        return true;
     }
 
     private IplImage adjustImage(IplImage image) {
@@ -129,7 +140,7 @@ public class AnalyzerText extends Analyzer {
         cvCvtColor(image, coloredImage, CV_BGR2GRAY);
 
         //upscale
-        IplImage resizedImage = IplImage.create((int) (sizeX * 1), (int) (sizeY * 1), coloredImage.depth(), coloredImage.nChannels());
+        IplImage resizedImage = IplImage.create((int) (sizeX * 2), (int) (sizeY * 2), coloredImage.depth(), coloredImage.nChannels());
         cvResize(coloredImage, resizedImage);
 
         //otsu

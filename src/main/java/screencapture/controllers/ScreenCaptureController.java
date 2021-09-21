@@ -5,6 +5,7 @@ import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.IplImage;
 import org.bytedeco.javacpp.opencv_imgproc.CvFont;
 import org.bytedeco.javacpp.opencv_objdetect;
+import org.bytedeco.javacv.CanvasFrame;
 import org.bytedeco.javacv.FrameGrabber;
 import org.bytedeco.javacv.OpenCVFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameGrabber;
@@ -39,6 +40,8 @@ public class ScreenCaptureController {
 
     private long startTime;
     private long framesAnalysed;
+    private long totalFrames;
+    private double frameRate;
 
     private void setupScreenCapture() throws Exception {
         grabber = FrameGrabber.createDefault(Integer.parseInt(Config.getInstance().getProp("captureDeviceNumber")));
@@ -52,6 +55,9 @@ public class ScreenCaptureController {
         grabber = new OpenCVFrameGrabber(Config.getInstance().getProp("sampleImagePath"));
         grabber.start();
         grabbedImage = converter.convert(grabber.grab());
+        totalFrames = ((OpenCVFrameGrabber) grabber).getLengthInFrames();
+        frameRate = ((OpenCVFrameGrabber) grabber).getFrameRate();
+
     }
 
     public ScreenCaptureController() {
@@ -243,13 +249,22 @@ public class ScreenCaptureController {
         System.out.println("[SCREEN CAPTURE] Capture started");
     }
 
+    long frameStartTime = 0;
+    long frameDuration = 0;
+
     //TODO replace this with ThreadPoolExecutor; Check if new Frame is available; Then check if ThreadPool is empty; Then cue all analysis steps
     public void start() {
         startTime = System.currentTimeMillis();
         framesAnalysed = 0;
+        if (Config.getInstance().getProp("debugEnabled").equals("video")) {
+            frameDuration = (long) (1000 / frameRate);
+        }
+        CanvasFrame canvas = new CanvasFrame("Video Feed");
+        canvas.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
         Thread thread = new Thread() {
             public void run() {
                 while (true) {
+                    frameStartTime = System.currentTimeMillis();
                     if (!Config.getInstance().getProp("debugEnabled").equals("photo")) {
                         try {
                             grabber.grab();
@@ -259,7 +274,7 @@ public class ScreenCaptureController {
                     }
                     //TODO: Dirty hack to loop. Needs some work
                     if (Config.getInstance().getProp("debugEnabled").equals("video")) {
-                        if (grabber.getFrameNumber() > 650) {
+                        if (grabber.getFrameNumber() > totalFrames) {
                             try {
                                 grabber.setTimestamp(0);
                                 System.out.println("[SCREEN CAPTURE] Restarted video");
@@ -283,6 +298,15 @@ public class ScreenCaptureController {
                         System.out.println("[SCREEN CAPTURE] Currently analysing " + FPS + " frames per second");
                         framesAnalysed = 0;
                         startTime = System.currentTimeMillis();
+                    }
+                    canvas.showImage(converter.convert(grabbedImage));
+                    long remainingFrameTime = frameDuration - (System.currentTimeMillis() - frameStartTime);
+                    if (remainingFrameTime > 0) {
+                        try {
+                            Thread.sleep(remainingFrameTime);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
