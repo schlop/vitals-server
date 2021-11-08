@@ -1,1 +1,65 @@
-<analysers><textAnalyser id="VS_HR"><log>true</log><publish>true</publish><dimensions><position_x>902</position_x><position_y>86</position_y><size_x>135</size_x><size_y>75</size_y></dimensions><chars>0123456789-?</chars></textAnalyser><textAnalyser id="VS_SPO2"><log>true</log><publish>true</publish><dimensions><position_x>905</position_x><position_y>181</position_y><size_x>133</size_x><size_y>62</size_y></dimensions><chars>0123456789-?</chars></textAnalyser><textAnalyser id="VS_BP"><log>true</log><publish>true</publish><dimensions><position_x>902</position_x><position_y>243</position_y><size_x>168</size_x><size_y>106</size_y></dimensions><chars>0123456789-?/()</chars></textAnalyser><imageAnalyser id="IMG_HR"><log>false</log><publish>true</publish><dimensions><position_x>74</position_x><position_y>71</position_y><size_x>789</size_x><size_y>64</size_y></dimensions></imageAnalyser><imageAnalyser id="IMG_SPO2"><log>false</log><publish>true</publish><dimensions><position_x>64</position_x><position_y>161</position_y><size_x>798</size_x><size_y>82</size_y></dimensions></imageAnalyser><imageAnalyser id="IMG_ABP"><log>false</log><publish>true</publish><dimensions><position_x>42</position_x><position_y>247</position_y><size_x>820</size_x><size_y>88</size_y></dimensions></imageAnalyser></analysers>
+<analysers>
+    <textAnalyser id="VITAL_RATE">
+        <log>true</log>
+        <publish>true</publish>
+        <dimensions>
+            <position_x>902</position_x>
+            <position_y>86</position_y>
+            <size_x>135</size_x>
+            <size_y>75</size_y>
+        </dimensions>
+        <chars>0123456789-?</chars>
+    </textAnalyser>
+    <textAnalyser id="VITAL_SATURATION">
+        <log>true</log>
+        <publish>true</publish>
+        <dimensions>
+            <position_x>905</position_x>
+            <position_y>181</position_y>
+            <size_x>133</size_x>
+            <size_y>62</size_y>
+        </dimensions>
+        <chars>0123456789-?</chars>
+    </textAnalyser>
+    <textAnalyser id="VITAL_PRESSURE">
+        <log>true</log>
+        <publish>true</publish>
+        <dimensions>
+            <position_x>902</position_x>
+            <position_y>243</position_y>
+            <size_x>168</size_x>
+            <size_y>106</size_y>
+        </dimensions>
+        <chars>0123456789-?/()</chars>
+    </textAnalyser>
+    <imageAnalyser id="IMAGE_RATE">
+        <log>false</log>
+        <publish>true</publish>
+        <dimensions>
+            <position_x>67</position_x>
+            <position_y>71</position_y>
+            <size_x>797</size_x>
+            <size_y>88</size_y>
+        </dimensions>
+    </imageAnalyser>
+    <imageAnalyser id="IMAGE_SATURATION">
+        <log>false</log>
+        <publish>true</publish>
+        <dimensions>
+            <position_x>67</position_x>
+            <position_y>161</position_y>
+            <size_x>797</size_x>
+            <size_y>88</size_y>
+        </dimensions>
+    </imageAnalyser>
+    <imageAnalyser id="IMAGE_PRESSURE">
+        <log>false</log>
+        <publish>true</publish>
+        <dimensions>
+            <position_x>67</position_x>
+            <position_y>247</position_y>
+            <size_x>797</size_x>
+            <size_y>88</size_y>
+        </dimensions>
+    </imageAnalyser>
+</analysers>

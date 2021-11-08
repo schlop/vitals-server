@@ -10,6 +10,7 @@ import org.bytedeco.javacv.FrameGrabber;
 import org.bytedeco.javacv.OpenCVFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameGrabber;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import screencapture.Config;
@@ -60,6 +61,21 @@ public class ScreenCaptureController {
 
     }
 
+    public static void stripEmptyElements(Node node)
+    {
+        NodeList children = node.getChildNodes();
+        for(int i = 0; i < children.getLength(); ++i) {
+            Node child = children.item(i);
+            if(child.getNodeType() == Node.TEXT_NODE) {
+                if (child.getTextContent().trim().length() == 0) {
+                    child.getParentNode().removeChild(child);
+                    i--;
+                }
+            }
+            stripEmptyElements(child);
+        }
+    }
+
     public ScreenCaptureController() {
         //setup of class variables
         Loader.load(opencv_objdetect.class);
@@ -102,7 +118,11 @@ public class ScreenCaptureController {
             DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document doc = dBuilder.parse(xml);
             doc.getDocumentElement().normalize();
-            NodeList analyserNodeList = doc.getElementsByTagName("analysers").item(0).getChildNodes();
+            Element root = doc.getDocumentElement();
+
+            stripEmptyElements(root);
+            NodeList analyserNodeList = root.getChildNodes();
+
             for (int i = 0; i < analyserNodeList.getLength(); i++) {
                 String analyzerType = null;
                 String name = null;

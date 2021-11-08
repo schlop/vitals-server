@@ -5,6 +5,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import publisher.Publisher;
 import screencapture.Config;
 import screencapture.models.Event;
 
@@ -217,7 +218,11 @@ public class WebUiController {
 
                     os.write(data);
                     he.close();
-                    System.out.println(new String(data));
+                    Event event = eventList.get(Integer.parseInt(new String(data).replaceAll("\\D+","")));
+                    System.out.println(event.toJSON());
+                    Publisher.INSTANCE.publish(event.toJSON());
+
+
 
                 } catch (NumberFormatException | IOException e) {
                 }

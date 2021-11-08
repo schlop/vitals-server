@@ -1,5 +1,7 @@
 package screencapture.models;
 
+import org.json.JSONObject;
+
 import java.util.HashMap;
 
 public class Event {
@@ -35,5 +37,12 @@ public class Event {
 
     public String getType() {
         return type;
+    }
+
+    public JSONObject toJSON(){
+        JSONObject json = new JSONObject();
+        json.put("type", type);
+        json.put("message", message);
+        return json;
     }
 }

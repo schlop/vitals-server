@@ -115,11 +115,11 @@ public class AnalyzerText extends Analyzer {
     }
 
     private boolean isVitalSignValid(String result){
-        if (getName().contains("VS_BP")){
+        if (getName().contains("VITAL_PRESSURE")){
             String regex = "\\d{1,3}(\\/|1)\\d{1,3}\\(\\d{1,3}\\)";
             if (! result.matches(regex)) return false;
         }
-        if (getName().contains("VS_SPO2") || getName().contains("VS_HR")){
+        if (getName().contains("VITAL_SATURATION") || getName().contains("VITAL_RATE")){
             if (result.equals("")) return false;
         }
         return true;

@@ -18,6 +18,7 @@ import java.util.Base64;
 
 import static org.bytedeco.javacpp.opencv_core.*;
 import static org.bytedeco.javacpp.opencv_imgcodecs.*;
+import static org.bytedeco.javacpp.opencv_imgproc.*;
 
 /**
  * Created by Paul on 29/01/2018.
@@ -49,19 +50,28 @@ public class AnalyzerImage extends  Analyzer{
         cvSetImageROI(copiedImage, cropBox);
         IplImage croppedImage = copiedImage.clone();
         cvCopy(copiedImage, croppedImage);
+
+        // resizing
+        int small_x = size_x / 2;
+        int small_y = size_y / 2;
+        Size sz = new Size(small_x, small_y);
+        IplImage resizedImage = IplImage.create(small_x, small_y, croppedImage.depth(), croppedImage.nChannels());
+        cvResize(croppedImage, resizedImage);
+
+        //base64 encoding
         //TODO: Make this a bit nicer; Check if Publish is set; Allow frame rate limiting to save bandwidth
 //        String path = Config.getInstance().getProp("extractedChartPath") + "/" + getName() + ".png";
 //        cvSaveImage(path, copiedImage);
-        CvMat fu = cvEncodeImage(".png", croppedImage);
+        CvMat fu = cvEncodeImage(".png", resizedImage);
         ByteBuffer bb = fu.getByteBuffer();
         byte[] arr = new byte[bb.remaining()];
         bb.get(arr);
         String result = Base64.getEncoder().encodeToString(arr);
         setValue(result);
-        System.out.println(result);
         Publisher.INSTANCE.publish(this.toJSON());
 
         fu.release();
+        resizedImage.release();
         croppedImage.release();
         copiedImage.release();
     }

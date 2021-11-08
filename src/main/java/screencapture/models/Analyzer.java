@@ -59,8 +59,8 @@ public abstract class Analyzer {
 
     public JSONObject toJSON(){
         JSONObject json = new JSONObject();
-        json.put("name", name);
-        json.put("value", value);
+        json.put("type", name);
+        json.put("message", value);
         return json;
     }
 
