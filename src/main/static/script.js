@@ -1,5 +1,5 @@
 window.onload = function() {
-    var inputs = document.getElementsByTagName('button');
+    var inputs = document.getElementsByClassName('send-button');
     for(var i = 0; i < inputs.length; i++) {
         inputs[i].addEventListener('click', async id => {
           try {
@@ -17,4 +17,10 @@ window.onload = function() {
           }
         });
     }
+
+    document.getElementById('send_all').addEventListener("click", function() {
+       for(var i = 0; i < inputs.length; i++) {
+          inputs[i].click();
+       }
+    });
 }

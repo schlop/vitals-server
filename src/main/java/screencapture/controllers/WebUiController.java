@@ -2,6 +2,7 @@ package screencapture.controllers;
 
 import com.sun.net.httpserver.*;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -20,6 +21,8 @@ import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static j2html.TagCreator.*;
 
@@ -53,13 +56,32 @@ public class WebUiController {
         }
     }
 
+    public static void stripEmptyElements(Node node)
+    {
+        NodeList children = node.getChildNodes();
+        for(int i = 0; i < children.getLength(); ++i) {
+            Node child = children.item(i);
+            if(child.getNodeType() == Node.TEXT_NODE) {
+                if (child.getTextContent().trim().length() == 0) {
+                    child.getParentNode().removeChild(child);
+                    i--;
+                }
+            }
+            stripEmptyElements(child);
+        }
+    }
+
     private void readEventConfig() {
         try {
             File xml = new File(Config.getInstance().getProp("eventsConfig"));
             DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document doc = dBuilder.parse(xml);
             doc.getDocumentElement().normalize();
-            NodeList eventNodeList = doc.getElementsByTagName("events").item(0).getChildNodes();
+
+            Element root = doc.getDocumentElement();
+            stripEmptyElements(root);
+            NodeList eventNodeList = root.getChildNodes();
+
             for (int i = 0; i < eventNodeList.getLength(); i++) {
                 String type = "UNKNOWN";
                 String message = "";
@@ -151,7 +173,7 @@ public class WebUiController {
                                                         div(attrs(".col-auto"),
                                                                 iff(event.getExtras().size() != 0, small(attrs(".text-muted"), "Extras: " + event.getExtras().size()))))),
                                         div(attrs(".col .ml-auto"),
-                                                button(attrs(".btn .btn-secondary .float-right"), "Send").withName(String.valueOf(event.getId())))))).render();
+                                                button(attrs(".btn .btn-secondary .float-right .send-button"), "Send").withName(String.valueOf(event.getId())))))).render();
                 MessageFormat form = new MessageFormat(template);
                 Object[] insert = {generated};
                 return form.format(insert);
@@ -219,15 +241,29 @@ public class WebUiController {
                     os.write(data);
                     he.close();
                     Event event = eventList.get(Integer.parseInt(new String(data).replaceAll("\\D+","")));
-                    System.out.println(event.toJSON());
-                    Publisher.INSTANCE.publish(event.toJSON());
-
-
-
+                    publishEvent(event);
                 } catch (NumberFormatException | IOException e) {
                 }
             }
+        }
 
+        private void publishEvent(Event event){
+            if(event.getDelay() == 0){
+                Publisher.INSTANCE.publish(event.toJSON());
+                System.out.println(event.toJSON());
+            }
+            else{
+                new Timer().schedule(
+                        new TimerTask() {
+                            @Override
+                            public void run() {
+                                Publisher.INSTANCE.publish(event.toJSON());
+                                System.out.println(event.toJSON());
+                            }
+                        },
+                        event.getDelay() * 1000
+                );
+            }
         }
     }
 }

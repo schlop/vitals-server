@@ -43,6 +43,7 @@ public class Event {
         JSONObject json = new JSONObject();
         json.put("type", type);
         json.put("message", message);
+        json.put("extras", extras);
         return json;
     }
 }
