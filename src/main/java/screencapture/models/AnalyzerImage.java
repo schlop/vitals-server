@@ -68,8 +68,9 @@ public class AnalyzerImage extends  Analyzer{
         bb.get(arr);
         String result = Base64.getEncoder().encodeToString(arr);
         setValue(result);
-        Publisher.INSTANCE.publish(this.toJSON());
-
+        if (isActivated()){
+            Publisher.INSTANCE.publish(this.toJSON());
+        }
         fu.release();
         resizedImage.release();
         croppedImage.release();

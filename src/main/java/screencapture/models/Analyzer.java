@@ -10,6 +10,7 @@ public abstract class Analyzer {
 
     private String name;
     private String value;
+    private boolean activated;
     private ArrayList<Tuple<String, String>> dependencyStrings;
     private ArrayList<Tuple<Analyzer, String>> dependencies;
     private Logger logger;
@@ -19,6 +20,7 @@ public abstract class Analyzer {
         this.value = "";
         dependencyStrings = new ArrayList<>();
         dependencies = new ArrayList<>();
+        activated = false;
     }
 
     public String getName() {
@@ -65,4 +67,12 @@ public abstract class Analyzer {
     }
 
     public abstract void processImage(opencv_core.IplImage image);
+
+    public boolean isActivated() {
+        return activated;
+    }
+
+    public void setActivated(boolean activated) {
+        this.activated = activated;
+    }
 }

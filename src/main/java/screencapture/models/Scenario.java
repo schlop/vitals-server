@@ -49,7 +49,7 @@ public class Scenario {
                                                 each(events, event ->
                                                         event.toHTML())
                                         ),
-                                        button(attrs(".send-all-button .btn .btn-danger .mt-3 .btn-block"), "Send all")))
+                                        button(attrs(".send-all-button .btn .btn-danger .mt-3 .btn-block"), "Schedule events and start experiment")))
                                 .attr("aria-labelledby", "heading" + scenarioNumber)),
                 div(attrs(".card"),
                         div(attrs("#heading2" + scenarioNumber + " .card-header"),

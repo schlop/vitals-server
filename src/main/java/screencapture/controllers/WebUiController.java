@@ -37,10 +37,12 @@ public class WebUiController {
 
     private HttpServer httpServer;
     private boolean running;
+    private MainController mc;
 
-    public WebUiController() {
+    public WebUiController(MainController mc) {
         readEventConfig();
         try {
+            this.mc = mc;
             httpServer = HttpServer.create(new InetSocketAddress(9555), 0);
             httpServer.createContext("/", new WebUiHandler());
             httpServer.createContext("/command", new PostHandler());
@@ -286,6 +288,14 @@ public class WebUiController {
                     he.close();
                     JSONObject json = new JSONObject(new String(data));
                     String id = json.getString("id");
+                    if (id.equals("start")){
+                        mc.activateTransmission();
+                        System.out.println("data transmission started");
+                        if (Config.getInstance().getProp("logEnabled").equals("true")){
+                            Logger.getInstance().log("Server", "Experiment started");
+                        }
+                        return;
+                    }
                     if (allEvents.containsKey(id)){
                         publishEvent(allEvents.get(id));
                         return;
@@ -294,7 +304,7 @@ public class WebUiController {
                         Logger.getInstance().log(allLogs.get(id).getEntity(), allLogs.get(id).getMessage());
                         return;
                     }
-                    if(json.has("entity") && json.has("message")){
+                    if(json.has("entity") && json.has("message") && Config.getInstance().getProp("logEnabled").equals("true")){
                         Logger.getInstance().log(json.getString("entity"), json.getString("message"));
                         return;
                     }

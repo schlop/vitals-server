@@ -19,12 +19,23 @@ window.onload = function () {
   }
 
   var sendAllButtons = document.getElementsByClassName('send-all-button');
-  console.log(sendAllButtons.length)
   for (var i = 0; i < sendAllButtons.length; i++) {
-    sendAllButtons[i].addEventListener("click", function () {
-      var buttons = this.parentNode.getElementsByClassName('send-button');
-      for (let index = 0; index < buttons.length; index++) {
-        buttons[index].click();
+    sendAllButtons[i].addEventListener("click", async fuu => {
+      try {
+        const response = await fetch('command', {
+          method: 'post',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: '{\"id\": \"start\"}',
+        });
+        console.log('Completed!', response);
+        var buttons = fuu.path[0].parentNode.getElementsByClassName('send-button');
+        for (let index = 0; index < buttons.length; index++) {
+          buttons[index].click();
+        }
+      } catch (err) {
+        console.error(`Error: ${err}`);
       }
     });
   }

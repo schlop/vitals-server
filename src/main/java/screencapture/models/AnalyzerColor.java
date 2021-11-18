@@ -57,7 +57,7 @@ public class AnalyzerColor extends Analyzer {
                     result = colorName.x.toString();
                 }
                 //check now if the value has changed
-                if (!result.equals(getValue())) {
+                if (isActivated() && !result.equals(getValue())) {
                     if (Config.getInstance().getProp("consoleOutputEnabled").equals("true")) {
                         String out = "NAME: " + getName() + "; VALUE: " + getValue();
                         System.out.println(out);

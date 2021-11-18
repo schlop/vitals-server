@@ -20,17 +20,20 @@ public class MainController {
 
     public MainController() {
         sc = new ScreenCaptureController();
-        ui = new WebUiController();
+        ui = new WebUiController(this);
         if(Config.getInstance().getProp("logEnabled").equals("true")){
             Logger.getInstance();
         }
         Publisher.INSTANCE.startNetworking(8888, 8, true);
     }
 
-
     public void start() {
         sc.start();
         ui.start();
+    }
+
+    public void activateTransmission(){
+        sc.activateTransmission();
     }
 
     public void stop() {

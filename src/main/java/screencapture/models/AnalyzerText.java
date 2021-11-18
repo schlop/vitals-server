@@ -96,7 +96,7 @@ public class AnalyzerText extends Analyzer {
             outText = ocr.GetUTF8Text();
             String result = outText.getString();
             result = result.replace("\n", "").replace("\r", "").replace(" ", "");
-            if (!result.equals(getValue()) && isVitalSignValid(result)){
+            if (isActivated() && !result.equals(getValue()) && isVitalSignValid(result)){
                 setValue(result);
                 if(publish){
                     Publisher.INSTANCE.publish(this.toJSON());

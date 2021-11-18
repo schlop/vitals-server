@@ -353,4 +353,8 @@ public class ScreenCaptureController {
         cvSaveImage(path, copyedImage);
         copyedImage.release();
     }
+
+    public void activateTransmission(){
+        analyzerList.forEach(analyzer -> analyzer.setActivated(true));
+    }
 }
