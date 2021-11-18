@@ -44,7 +44,7 @@ public class Logger {
             e.printStackTrace();
         }
 
-        String csvHeadings = "time,analyzer,value";
+        String csvHeadings = "time,entity,value";
         writeToCSV(alarmsFileWriter, csvHeadings);
     }
 

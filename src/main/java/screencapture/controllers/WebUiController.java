@@ -1,6 +1,7 @@
 package screencapture.controllers;
 
 import com.sun.net.httpserver.*;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -8,7 +9,10 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import publisher.Publisher;
 import screencapture.Config;
+import screencapture.Logger;
 import screencapture.models.Event;
+import screencapture.models.LogEntry;
+import screencapture.models.Scenario;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -19,10 +23,7 @@ import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 import static j2html.TagCreator.*;
 
@@ -35,11 +36,9 @@ import static j2html.TagCreator.*;
 public class WebUiController {
 
     private HttpServer httpServer;
-    private ArrayList<Event> eventList;
     private boolean running;
 
     public WebUiController() {
-        eventList = new ArrayList<Event>();
         readEventConfig();
         try {
             httpServer = HttpServer.create(new InetSocketAddress(9555), 0);
@@ -71,6 +70,80 @@ public class WebUiController {
         }
     }
 
+    int scenarioCounter = 0;
+    private Scenario readScenarioConfig(Node scenarioNode){
+        scenarioCounter++;
+        Scenario scenario = new Scenario(scenarioCounter);
+
+        NodeList scenarioChildrenList = scenarioNode.getChildNodes();
+        for (int j = 0; j < scenarioChildrenList.getLength(); j++) {
+            Node childNode = scenarioChildrenList.item(j);
+            if (childNode.getNodeName().equals("event")){
+                scenario.addEvent(readEventConfig(childNode));
+            }
+            else if(childNode.getNodeName().equals("log")){
+                scenario.addLog(readLogConfig(childNode));
+            }
+        }
+        return scenario;
+    }
+
+    private Event readEventConfig(Node evenNode){
+
+        NodeList eventChildrenList = evenNode.getChildNodes();
+
+        String type = "UNKNOWN";
+        String message = "";
+        int delay = 0;
+        HashMap<String, String> extras = new HashMap<String, String>();
+        for (int j = 0; j < eventChildrenList.getLength(); j++) {
+            Node attribute = eventChildrenList.item(j);
+            switch (attribute.getNodeName()) {
+                case "message":
+                    message = attribute.getFirstChild().getNodeValue();
+                    break;
+                case "type":
+                    type = attribute.getFirstChild().getNodeValue();
+                    break;
+                case "delay":
+                    delay = Integer.parseInt(attribute.getFirstChild().getNodeValue());
+                    break;
+                case "extras":
+                    NodeList extraList = attribute.getChildNodes();
+                    for (int k = 0; k < extraList.getLength(); k++) {
+                        Node extra = extraList.item(k);
+                        String extraName = extra.getNodeName();
+                        String extraValue = extra.getFirstChild().getNodeValue();
+                        extras.put(extraName, extraValue);
+                    }
+            }
+        }
+        Event event = new Event(UUID.randomUUID().toString(), type, message, delay, extras);
+        return event;
+    }
+
+    private LogEntry readLogConfig(Node logNode){
+        NodeList eventChildrenList = logNode.getChildNodes();
+
+        String entity = "UNKNOWN";
+        String message = "";
+        HashMap<String, String> extras = new HashMap<String, String>();
+        for (int j = 0; j < eventChildrenList.getLength(); j++) {
+            Node attribute = eventChildrenList.item(j);
+            switch (attribute.getNodeName()) {
+                case "message":
+                    message = attribute.getFirstChild().getNodeValue();
+                    break;
+                case "entity":
+                    entity = attribute.getFirstChild().getNodeValue();
+                    break;
+            }
+        }
+        return new LogEntry(UUID.randomUUID().toString(), entity, message);
+    }
+
+    public ArrayList<Scenario> scenarioArrayList = new ArrayList<>();
+
     private void readEventConfig() {
         try {
             File xml = new File(Config.getInstance().getProp("eventsConfig"));
@@ -80,40 +153,11 @@ public class WebUiController {
 
             Element root = doc.getDocumentElement();
             stripEmptyElements(root);
-            NodeList eventNodeList = root.getChildNodes();
-
-            for (int i = 0; i < eventNodeList.getLength(); i++) {
-                String type = "UNKNOWN";
-                String message = "";
-                int delay = 0;
-                HashMap<String, String> extras = new HashMap<String, String>();
-                Node eventNode = eventNodeList.item(i);
-                NodeList eventAttributeList = eventNode.getChildNodes();
-                for (int j = 0; j < eventAttributeList.getLength(); j++) {
-                    Node attribute = eventAttributeList.item(j);
-                    switch (attribute.getNodeName()) {
-                        case "message":
-                            message = attribute.getFirstChild().getNodeValue();
-                            break;
-                        case "type":
-                            type = attribute.getFirstChild().getNodeValue();
-                            break;
-                        case "delay":
-                            delay = Integer.parseInt(attribute.getFirstChild().getNodeValue());
-                            break;
-                        case "extras":
-                            NodeList extraList = attribute.getChildNodes();
-                            for (int k = 0; k < extraList.getLength(); k++) {
-                                Node extra = extraList.item(k);
-                                String extraName = extra.getNodeName();
-                                String extraValue = extra.getFirstChild().getNodeValue();
-                                extras.put(extraName, extraValue);
-                            }
-                    }
-                }
-                System.out.println(i);
-                Event event = new Event(i, type, message, delay, extras);
-                eventList.add(event);
+            NodeList experimentNodeList = root.getChildNodes();
+            for (int i = 0; i < experimentNodeList.getLength(); i++) {
+                Node scenarioNode = experimentNodeList.item(i);
+                scenarioArrayList.add(readScenarioConfig(scenarioNode));
+                System.out.println("config read");
             }
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
@@ -156,24 +200,13 @@ public class WebUiController {
             html = generateHTML();
         }
 
+
+
         private String generateHTML() {
             try {
                 String template = new String(Files.readAllBytes(Paths.get("src/main/static/template.html")));
-                String generated = each(eventList, event ->
-                        div(attrs(".list-group-item"),
-                                div(attrs(".row .align-items-center"),
-                                        div(attrs(".col-10"),
-                                                div(attrs(".row mb-2"),
-                                                        div(attrs(".col"), event.getMessage())),
-                                                div(attrs(".row justify-content-start"),
-                                                        div(attrs(".col-auto"),
-                                                                small(attrs(".text-muted"), "Type: " + event.getType())),
-                                                        div(attrs(".col-auto"),
-                                                                iff(event.getDelay() != 0, small(attrs(".text-muted"), "Delay: " + event.getDelay()))),
-                                                        div(attrs(".col-auto"),
-                                                                iff(event.getExtras().size() != 0, small(attrs(".text-muted"), "Extras: " + event.getExtras().size()))))),
-                                        div(attrs(".col .ml-auto"),
-                                                button(attrs(".btn .btn-secondary .float-right .send-button"), "Send").withName(String.valueOf(event.getId())))))).render();
+                String generated = div(attrs("#accordionExample .accordion")).with(
+                        each(scenarioArrayList, scenario -> scenario.toHTML())).render();
                 MessageFormat form = new MessageFormat(template);
                 Object[] insert = {generated};
                 return form.format(insert);
@@ -216,7 +249,18 @@ public class WebUiController {
         }
     }
 
+
     public class PostHandler implements HttpHandler {
+
+        HashMap<String, Event> allEvents = new HashMap<String, Event>();
+        HashMap<String, LogEntry> allLogs = new HashMap<>();
+
+        public PostHandler(){
+            for (Scenario scenario : scenarioArrayList){
+                scenario.getEvents().forEach(event -> allEvents.put(event.getId(), event));
+                scenario.getLogs().forEach(log -> allLogs.put(log.getId(), log));
+            }
+        }
 
         @Override
         public void handle(HttpExchange he) throws IOException {
@@ -240,8 +284,20 @@ public class WebUiController {
 
                     os.write(data);
                     he.close();
-                    Event event = eventList.get(Integer.parseInt(new String(data).replaceAll("\\D+","")));
-                    publishEvent(event);
+                    JSONObject json = new JSONObject(new String(data));
+                    String id = json.getString("id");
+                    if (allEvents.containsKey(id)){
+                        publishEvent(allEvents.get(id));
+                        return;
+                    }
+                    if (allLogs.containsKey(id)){
+                        Logger.getInstance().log(allLogs.get(id).getEntity(), allLogs.get(id).getMessage());
+                        return;
+                    }
+                    if(json.has("entity") && json.has("message")){
+                        Logger.getInstance().log(json.getString("entity"), json.getString("message"));
+                        return;
+                    }
                 } catch (NumberFormatException | IOException e) {
                 }
             }
