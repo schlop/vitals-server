@@ -65,7 +65,7 @@ public class AnalyzerColor extends Analyzer {
                     if(publish){
                         Publisher.INSTANCE.publish(this.toJSON());
                     }
-                    if(log && Config.getInstance().getProp("logEnabled").equals("true")){
+                    if(log && Config.getInstance().getProp("vitalSignLogEnabled").equals("true")){
                         Logger.getInstance().log(getName(), result);
                     }
                     setValue(result);

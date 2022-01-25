@@ -44,7 +44,7 @@
             </extras>
         </event>
         <log>
-            <entity>experimenter</entity>
+            <entity>Experimenter</entity>
             <message>example observation was made</message>
         </log>
     </scenario>
@@ -92,7 +92,7 @@
             </extras>
         </event>
         <log>
-            <entity>experimenter</entity>
+            <entity>Experimenter</entity>
             <message>example observation was made</message>
         </log>
     </scenario>

@@ -286,8 +286,12 @@ public class WebUiController {
 
                     os.write(data);
                     he.close();
+                    System.out.println(new String(data));
                     JSONObject json = new JSONObject(new String(data));
-                    String id = json.getString("id");
+                    String id = "";
+                    if (json.has("id")){
+                        id = json.getString("id");
+                    }
                     if (id.equals("start")){
                         mc.activateTransmission();
                         System.out.println("data transmission started");
@@ -304,11 +308,15 @@ public class WebUiController {
                         Logger.getInstance().log(allLogs.get(id).getEntity(), allLogs.get(id).getMessage());
                         return;
                     }
+                    System.out.println(json.has("entity"));
+                    System.out.println(json.has("message"));
+                    System.out.println(Config.getInstance().getProp("logEnabled").equals("true"));
                     if(json.has("entity") && json.has("message") && Config.getInstance().getProp("logEnabled").equals("true")){
                         Logger.getInstance().log(json.getString("entity"), json.getString("message"));
                         return;
                     }
                 } catch (NumberFormatException | IOException e) {
+                    System.out.println(e);
                 }
             }
         }

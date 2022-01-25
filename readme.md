@@ -14,23 +14,5 @@ In the second block, the application can be configured. 'validationEnabled' is a
 In the third block, capture frequency, capture device number (is usually 0, 1, or 2 depending on whether a webcam is attached to the computer), and resolution of the screenshot.
 
 
-## config.xml
-This file contains information about the position and name of vital signs. The following example would define a hospital with a single operating room '0', where a single vital sign 'HF' is collected, that is displayed on the screenshot at position 'x: 100, y: 100'.
-
-```xml
-<hospital>
-  <op number = "0">
-    <vitalsign category="HF">
-      <postionx>100</postionx>
-      <postiony>100</postiony>
-    </vitalsign>
-  </op>
-</hospital>
-```
-
-## TODO
-- COMPLETED: extend the configuration file, so that the whole application can be controlled from there (e.g. path to xml file)
-- COMPLETED: extend the xml so that it contains all the screen specific information (e.g. dimensions of the vital signs; colour of the alarms)
-- generate folder if there is none at the specified location
-- extract dimensions of the whole image automatically
-- update readme file to describe the new functionality of the application
+## dimensions.xml
+This XML file contains the coordinates of screenelements for the OCR component to extract. A [Python Script](https://github.com/schlop/vitals-configurator) can be used to generate the config.

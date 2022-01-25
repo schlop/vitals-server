@@ -13,7 +13,8 @@ Configuration of the software: screenshots with superimposed results (validation
 validationEnabled = false
 debugEnabled = video
 logEnabled = false
-consoleOutputEnabled = true
+vitalSignLogEnabled = false
+consoleOutputEnabled = false
 
 Configuration of capture device: Device number and resolution
 captureDeviceNumber = 0
