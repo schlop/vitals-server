@@ -5,7 +5,7 @@ extractedValidationPath = validation
 csvOutputPath = output
 
 Paths to files that are required for the software to run: config file that defines information to be extracted (analyzerConfig), image or video of screen to be analysed for debug purposes (sampleImagePath), https certificate (httpsCertPath)
-analyzerConfig = rbwh_sim_config.xml
+analyzerConfig = dimensions_config_v01.xml
 eventsConfig = event_config_v01.xml
 sampleImagePath = debug/vitals.mp4
 

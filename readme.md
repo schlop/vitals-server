@@ -4,7 +4,7 @@ The UKW Server Application extracts and digitalises alphanumeric characters from
 
 The application uses Maven to resolve dependencies. The OCR and image processing library used to extract the vital signs is [JavaCV](https://github.com/bytedeco/javacv).
 
-The program is configured via two files.
+The program is configured via three files.
 
 ## applicationConfig.txt
 This files contains the general config of the application. In the first block, paths have to be defined. For the application to work properly, folders with the names 'extracted', 'charts', 'validation', 'output', and 'debug' have to be created in the root folder of the application.
@@ -14,5 +14,8 @@ In the second block, the application can be configured. 'validationEnabled' is a
 In the third block, capture frequency, capture device number (is usually 0, 1, or 2 depending on whether a webcam is attached to the computer), and resolution of the screenshot.
 
 
-## dimensions.xml
+## dimensions_config.xml
 This XML file contains the coordinates of screenelements for the OCR component to extract. A [Python Script](https://github.com/schlop/vitals-configurator) can be used to generate the config.
+
+## events_config.xml
+This XML file contains simple events that can be published via the server component to simulate, for example, the completion of a clinical test.
