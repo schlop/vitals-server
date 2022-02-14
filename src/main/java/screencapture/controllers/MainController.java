@@ -36,6 +36,10 @@ public class MainController {
         sc.activateTransmission();
     }
 
+    public void deactivateTransmission(){
+        sc.deactivateTransmission();
+    }
+
     public void stop() {
     }
 }

@@ -18,6 +18,24 @@ window.onload = function () {
     });
   }
 
+  var inputs = document.getElementsByClassName('stop-button');
+    for (var i = 0; i < inputs.length; i++) {
+      inputs[i].addEventListener('click', async id => {
+        try {
+          const response = await fetch('command', {
+            method: 'post',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: '{\"id\": \"stop\"}',
+          });
+          console.log('Completed!', response);
+        } catch (err) {
+          console.error(`Error: ${err}`);
+        }
+      });
+    }
+
   var sendAllButtons = document.getElementsByClassName('send-all-button');
   for (var i = 0; i < sendAllButtons.length; i++) {
     sendAllButtons[i].addEventListener("click", async fuu => {

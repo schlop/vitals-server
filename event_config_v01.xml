@@ -93,7 +93,7 @@
         </event>
         <log>
             <entity>Experimenter</entity>
-            <message>example observation was made</message>
+            <message>An action was performed</message>
         </log>
     </scenario>
 </experiment>

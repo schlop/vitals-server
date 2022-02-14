@@ -357,4 +357,8 @@ public class ScreenCaptureController {
     public void activateTransmission(){
         analyzerList.forEach(analyzer -> analyzer.setActivated(true));
     }
+
+    public void deactivateTransmission(){
+        analyzerList.forEach(analyzer -> analyzer.setActivated(false));
+    }
 }

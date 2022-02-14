@@ -294,9 +294,16 @@ public class WebUiController {
                     }
                     if (id.equals("start")){
                         mc.activateTransmission();
-                        System.out.println("data transmission started");
                         if (Config.getInstance().getProp("logEnabled").equals("true")){
-                            Logger.getInstance().log("Server", "Experiment started");
+                            Logger.getInstance().log("Server", "Simulation started");
+                        }
+                        return;
+                    }
+                    if (id.equals("stop")){
+                        mc.deactivateTransmission();
+                        publishStopEvent();
+                        if (Config.getInstance().getProp("logEnabled").equals("true")){
+                            Logger.getInstance().log("Server", "Simulation stopped and HWD reset");
                         }
                         return;
                     }
@@ -308,9 +315,6 @@ public class WebUiController {
                         Logger.getInstance().log(allLogs.get(id).getEntity(), allLogs.get(id).getMessage());
                         return;
                     }
-                    System.out.println(json.has("entity"));
-                    System.out.println(json.has("message"));
-                    System.out.println(Config.getInstance().getProp("logEnabled").equals("true"));
                     if(json.has("entity") && json.has("message") && Config.getInstance().getProp("logEnabled").equals("true")){
                         Logger.getInstance().log(json.getString("entity"), json.getString("message"));
                         return;
@@ -338,6 +342,13 @@ public class WebUiController {
                         event.getDelay() * 1000
                 );
             }
+        }
+
+        private void publishStopEvent(){
+            JSONObject stopEvent = new JSONObject();
+            stopEvent.put("type", "STOP");
+            stopEvent.put("message", "");
+            Publisher.INSTANCE.publish(stopEvent);
         }
     }
 }
