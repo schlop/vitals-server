@@ -4,5 +4,8 @@ target/*
 
 *.iml
 
+*.jar
+
 applicationConfig.txt
 /debug
+/out
