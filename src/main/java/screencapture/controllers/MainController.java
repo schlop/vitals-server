@@ -1,6 +1,11 @@
 package screencapture.controllers;
 
+import networking.NetworkingChangeListener;
+import networking.NetworkingState;
+import org.json.JSONObject;
 import publisher.Publisher;
+import publisher.Subscriber;
+import publisher.SubscriberChangeListener;
 import screencapture.Config;
 import screencapture.Logger;
 
@@ -25,6 +30,41 @@ public class MainController {
             Logger.getInstance();
         }
         Publisher.INSTANCE.startNetworking(8888, 8, true);
+        Publisher.INSTANCE.addSubscribeListener(new SubscriberChangeListener() {
+            @Override
+            public void onSubscribe(Subscriber subscriber) {
+                System.out.println("[WEB SOCKET] HWD connected");
+            }
+
+            @Override
+            public void onUnsubscribe(Subscriber subscriber) {
+                System.out.println("[WEB SOCKET] HWD disconnected");
+            }
+
+            @Override
+            public void onChange(Subscriber subscriber) {
+                System.out.println("[WEB SOCKET] HWD ready for transmission");
+            }
+
+            @Override
+            public void onMessage(Subscriber subscriber, JSONObject jsonObject) {
+
+            }
+        });
+
+        Runtime.getRuntime().addShutdownHook(new Thread()
+        {
+            public void run()
+            {
+                ui.stop();
+                System.out.println("[System] Restarting HWD before shutdown");
+                try {
+                    sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     public void start() {

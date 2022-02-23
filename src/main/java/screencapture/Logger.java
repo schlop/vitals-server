@@ -51,7 +51,7 @@ public class Logger {
     public void log(String name, String value){
         String csvString = System.currentTimeMillis() + "," + name + "," + value;
         writeToCSV(alarmsFileWriter, csvString);
-        System.out.println("[LOGGER] Wrote status change");
+        System.out.println("[LOGGER] " + value);
     }
 
     private void writeToCSV (FileWriter fw, String str){

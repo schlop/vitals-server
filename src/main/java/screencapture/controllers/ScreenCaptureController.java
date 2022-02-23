@@ -254,7 +254,7 @@ public class ScreenCaptureController {
                 }
             }
         } catch (Exception e) {
-            System.out.println("Error during XML parsing");
+            System.err.println("[CONFIG] Could not parse XML");
             e.printStackTrace();
         }
         for (Analyzer analyzer : analyzerList){
@@ -266,7 +266,7 @@ public class ScreenCaptureController {
                 }
             }
         }
-        System.out.println("[SCREEN CAPTURE] Capture started");
+        System.out.println("[CONFIG] Screen config read");
     }
 
     long frameStartTime = 0;

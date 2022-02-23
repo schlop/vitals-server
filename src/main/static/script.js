@@ -8,10 +8,10 @@ window.onload = function () {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: '{\"id\": '.concat(id.path[0].name).concat('}'),
+          body: '{\"id\": \"'.concat(id.path[0].name).concat('\"}'),
         });
-        id.path[0].className = "btn btn-success float-right";
-        console.log('Completed!', response);
+        id.path[0].className = "btn btn-success float-right send-button";
+        console.log('Sent event button!', response);
       } catch (err) {
         console.error(`Error: ${err}`);
       }
@@ -29,7 +29,7 @@ window.onload = function () {
             },
             body: '{\"id\": \"stop\"}',
           });
-          console.log('Completed!', response);
+          console.log('Sent stop button!', response);
         } catch (err) {
           console.error(`Error: ${err}`);
         }
@@ -47,7 +47,7 @@ window.onload = function () {
           },
           body: '{\"id\": \"start\"}',
         });
-        console.log('Completed!', response);
+        console.log('Sent start button!', response);
         var buttons = fuu.path[0].parentNode.getElementsByClassName('send-button');
         for (let index = 0; index < buttons.length; index++) {
           buttons[index].click();

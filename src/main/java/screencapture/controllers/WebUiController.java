@@ -38,14 +38,16 @@ public class WebUiController {
     private HttpServer httpServer;
     private boolean running;
     private MainController mc;
+    private PostHandler ph;
 
     public WebUiController(MainController mc) {
         readEventConfig();
         try {
             this.mc = mc;
+            ph = new PostHandler();
             httpServer = HttpServer.create(new InetSocketAddress(9555), 0);
             httpServer.createContext("/", new WebUiHandler());
-            httpServer.createContext("/command", new PostHandler());
+            httpServer.createContext("/command", ph);
             File[] folder = new File("src/main/static").listFiles();
             for (File file : folder) {
                 String name = "/" + file.getName();
@@ -57,12 +59,11 @@ public class WebUiController {
         }
     }
 
-    public static void stripEmptyElements(Node node)
-    {
+    public static void stripEmptyElements(Node node) {
         NodeList children = node.getChildNodes();
-        for(int i = 0; i < children.getLength(); ++i) {
+        for (int i = 0; i < children.getLength(); ++i) {
             Node child = children.item(i);
-            if(child.getNodeType() == Node.TEXT_NODE) {
+            if (child.getNodeType() == Node.TEXT_NODE) {
                 if (child.getTextContent().trim().length() == 0) {
                     child.getParentNode().removeChild(child);
                     i--;
@@ -73,24 +74,24 @@ public class WebUiController {
     }
 
     int scenarioCounter = 0;
-    private Scenario readScenarioConfig(Node scenarioNode){
+
+    private Scenario readScenarioConfig(Node scenarioNode) {
         scenarioCounter++;
         Scenario scenario = new Scenario(scenarioCounter);
 
         NodeList scenarioChildrenList = scenarioNode.getChildNodes();
         for (int j = 0; j < scenarioChildrenList.getLength(); j++) {
             Node childNode = scenarioChildrenList.item(j);
-            if (childNode.getNodeName().equals("event")){
+            if (childNode.getNodeName().equals("event")) {
                 scenario.addEvent(readEventConfig(childNode));
-            }
-            else if(childNode.getNodeName().equals("log")){
+            } else if (childNode.getNodeName().equals("log")) {
                 scenario.addLog(readLogConfig(childNode));
             }
         }
         return scenario;
     }
 
-    private Event readEventConfig(Node evenNode){
+    private Event readEventConfig(Node evenNode) {
 
         NodeList eventChildrenList = evenNode.getChildNodes();
 
@@ -120,11 +121,11 @@ public class WebUiController {
                     }
             }
         }
-        Event event = new Event(UUID.randomUUID().toString(), type, message, delay, extras);
+        Event event = new Event(String.valueOf(evenNode.hashCode()), type, message, delay, extras);
         return event;
     }
 
-    private LogEntry readLogConfig(Node logNode){
+    private LogEntry readLogConfig(Node logNode) {
         NodeList eventChildrenList = logNode.getChildNodes();
 
         String entity = "UNKNOWN";
@@ -159,8 +160,8 @@ public class WebUiController {
             for (int i = 0; i < experimentNodeList.getLength(); i++) {
                 Node scenarioNode = experimentNodeList.item(i);
                 scenarioArrayList.add(readScenarioConfig(scenarioNode));
-                System.out.println("config read");
             }
+            System.out.println("[CONFIG] Event config read");
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -179,6 +180,7 @@ public class WebUiController {
     public void stop() {
         running = false;
         httpServer.stop(0);
+        ph.stopTransmission();
     }
 
     public boolean isRunning() {
@@ -201,7 +203,6 @@ public class WebUiController {
         public WebUiHandler() {
             html = generateHTML();
         }
-
 
 
         private String generateHTML() {
@@ -228,7 +229,6 @@ public class WebUiController {
             ps.print(html);
             ps.close();
             os.close();
-            System.out.println("[HTTP SERVER] Handled http-get request");
         }
     }
 
@@ -257,8 +257,8 @@ public class WebUiController {
         HashMap<String, Event> allEvents = new HashMap<String, Event>();
         HashMap<String, LogEntry> allLogs = new HashMap<>();
 
-        public PostHandler(){
-            for (Scenario scenario : scenarioArrayList){
+        public PostHandler() {
+            for (Scenario scenario : scenarioArrayList) {
                 scenario.getEvents().forEach(event -> allEvents.put(event.getId(), event));
                 scenario.getLogs().forEach(log -> allLogs.put(log.getId(), log));
             }
@@ -286,36 +286,32 @@ public class WebUiController {
 
                     os.write(data);
                     he.close();
-                    System.out.println(new String(data));
                     JSONObject json = new JSONObject(new String(data));
+
                     String id = "";
-                    if (json.has("id")){
+                    if (json.has("id")) {
                         id = json.getString("id");
                     }
-                    if (id.equals("start")){
+                    if (id.equals("start")) {
                         mc.activateTransmission();
-                        if (Config.getInstance().getProp("logEnabled").equals("true")){
+                        if (Config.getInstance().getProp("logEnabled").equals("true")) {
                             Logger.getInstance().log("Server", "Simulation started");
                         }
                         return;
                     }
-                    if (id.equals("stop")){
-                        mc.deactivateTransmission();
-                        publishStopEvent();
-                        if (Config.getInstance().getProp("logEnabled").equals("true")){
-                            Logger.getInstance().log("Server", "Simulation stopped and HWD reset");
-                        }
+                    if (id.equals("stop")) {
+                        stopTransmission();
                         return;
                     }
-                    if (allEvents.containsKey(id)){
+                    if (allEvents.containsKey(id)) {
                         publishEvent(allEvents.get(id));
                         return;
                     }
-                    if (allLogs.containsKey(id)){
+                    if (allLogs.containsKey(id)) {
                         Logger.getInstance().log(allLogs.get(id).getEntity(), allLogs.get(id).getMessage());
                         return;
                     }
-                    if(json.has("entity") && json.has("message") && Config.getInstance().getProp("logEnabled").equals("true")){
+                    if (json.has("entity") && json.has("message") && Config.getInstance().getProp("logEnabled").equals("true")) {
                         Logger.getInstance().log(json.getString("entity"), json.getString("message"));
                         return;
                     }
@@ -325,30 +321,36 @@ public class WebUiController {
             }
         }
 
-        private void publishEvent(Event event){
-            if(event.getDelay() == 0){
-                Publisher.INSTANCE.publish(event.toJSON());
-                System.out.println(event.toJSON());
-            }
-            else{
-                new Timer().schedule(
-                        new TimerTask() {
-                            @Override
-                            public void run() {
-                                Publisher.INSTANCE.publish(event.toJSON());
-                                System.out.println(event.toJSON());
-                            }
-                        },
-                        event.getDelay() * 1000
-                );
-            }
+        Timer eventTimer = new Timer();
+
+        private void publishEvent(Event event) {
+            eventTimer.schedule(
+                    new TimerTask() {
+                        @Override
+                        public void run() {
+                            Publisher.INSTANCE.publish(event.toJSON());
+                            System.out.println("[WEB SOCKET] Sent event to HWD: " + event.getMessage());
+                        }
+                    },
+                    event.getDelay() * 1000
+            );
         }
 
-        private void publishStopEvent(){
+        private void publishStopEvent() {
             JSONObject stopEvent = new JSONObject();
             stopEvent.put("type", "STOP");
             stopEvent.put("message", "");
             Publisher.INSTANCE.publish(stopEvent);
+        }
+
+        public void stopTransmission() {
+            mc.deactivateTransmission();
+            publishStopEvent();
+            eventTimer.cancel();
+            eventTimer = new Timer();
+            if (Config.getInstance().getProp("logEnabled").equals("true")) {
+                Logger.getInstance().log("Server", "Simulation stopped and HWD reset");
+            }
         }
     }
 }

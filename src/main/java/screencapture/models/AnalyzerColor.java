@@ -60,7 +60,6 @@ public class AnalyzerColor extends Analyzer {
                 if (isActivated() && !result.equals(getValue())) {
                     if (Config.getInstance().getProp("consoleOutputEnabled").equals("true")) {
                         String out = "NAME: " + getName() + "; VALUE: " + getValue();
-                        System.out.println(out);
                     }
                     if(publish){
                         Publisher.INSTANCE.publish(this.toJSON());

@@ -20,10 +20,11 @@ public class Config {
             input = new FileInputStream("applicationConfig.txt");
             // load a properties file
             prop.load(input);
+            System.out.println("[CONFIG] Application config read");
         } catch (FileNotFoundException e) {
-            System.out.println("[CONFIG] Could not read config file");
+            System.err.println("[CONFIG] Could not read config file");
         } catch (IOException e) {
-            System.out.println("[Config] Could not process config file");
+            System.err.println("[CONFIG] Could not read config file");
         } finally {
             if (input != null) {
                 try {
